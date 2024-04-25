@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import Login from './auth/Login'
 import Layout from './page/Layout'
 import Chat from './page/chat/Chat'
@@ -10,7 +10,11 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: 'note',
+        path: '/',
+        element: <Navigate to="/note" />
+      },
+      {
+        path: '/note',
         element: <Note />
       },
       {
