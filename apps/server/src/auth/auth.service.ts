@@ -1,6 +1,13 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  UseGuards
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { EmailService } from 'src/email/email.service'
+import { RefreshTokenGuard } from 'src/guard/refresh-token.guard'
 import { RedisService } from 'src/redis/redis.service'
 import { TokenPayload } from 'src/type'
 import { UserRepository } from 'src/user/user.repository'
@@ -27,7 +34,7 @@ export class AuthService {
     if (cachedCode !== code) {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
-    // await this.redis.delLoginCode(email)
+    await this.redis.delLoginCode(email)
 
     let user = await this.user.findByEmail(email)
     if (!user) {
@@ -36,51 +43,41 @@ export class AuthService {
       })
     }
 
-    const accessToken = this.getToken(
-      user.id,
-      user.email,
-      process.env.JWT_ACCESS_TOKEN_EXPIRES!
-    )
-    const refreshToken = this.getToken(
-      user.id,
-      user.email,
-      process.env.JWT_REFRESH_TOKEN_EXPIRES!
-    )
-    return {
-      user,
-      tokens: {
-        accessToken,
-        refreshToken
+    const accessToken = this.getToken(user.id, 'access')
+    const refreshToken = this.getToken(user.id, 'refresh')
+    return { accessToken, refreshToken }
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  refreshToken(userId: string) {
+    const accessToken = this.getToken(userId, 'access')
+    const refreshToken = this.getToken(userId, 'refresh')
+    return { accessToken, refreshToken }
+  }
+
+  async logout(refreshToken: string, accessToken?: string) {
+    try {
+      const { exp: refreshTokenExp } =
+        this.jwt.verify<TokenPayload>(refreshToken)
+      this.redis.addTokenBlacklist(refreshToken, refreshTokenExp)
+      if (accessToken) {
+        const { exp: accessTokenExp } =
+          this.jwt.verify<TokenPayload>(accessToken)
+        this.redis.addTokenBlacklist(accessToken, accessTokenExp)
       }
+    } catch {
+      throw new HttpException('无效token', HttpStatus.BAD_REQUEST)
     }
   }
 
-  refreshToken(userId: string, email: string) {
-    const accessToken = this.getToken(
-      userId,
-      email,
-      process.env.JWT_ACCESS_TOKEN_EXPIRES!
-    )
-    return {
-      accessToken
-    }
-  }
-
-  async logout(accessToken: string, refreshToken: string) {
-    const refreshTokenExp = this.jwt.verify<TokenPayload>(refreshToken).exp
-    const accessTokenExp = this.jwt.verify<TokenPayload>(accessToken).exp
-    await this.redis.addTokenBlacklist(refreshToken, refreshTokenExp)
-    await this.redis.addTokenBlacklist(accessToken, accessTokenExp)
-  }
-
-  private getToken(userId: string, email: string, expires: string) {
+  private getToken(userId: string, type: 'access' | 'refresh') {
     return this.jwt.sign(
+      { userId },
       {
-        userId,
-        email
-      },
-      {
-        expiresIn: expires
+        expiresIn:
+          type === 'access'
+            ? process.env.JWT_ACCESS_TOKEN_EXPIRES
+            : process.env.JWT_REFRESH_TOKEN_EXPIRES
       }
     )
   }

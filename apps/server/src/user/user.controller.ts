@@ -1,34 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { UserService } from './user.service'
+import { AuthGuard } from 'src/guard/auth.guard'
+import { UserId } from 'src/custom.decorator'
+import { InitNameDto } from './dto/init-name.dto'
 
 @Controller('user')
+@UseGuards(AuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Get('me')
+  async findMe(@UserId() userId: string) {
+    return await this.userService.findUserById(userId)
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Post('name')
+  async initName(@UserId() userId: string, @Body() { name }: InitNameDto) {
+    await this.userService.initName(userId, name)
+    return '名称设置成功'
   }
 }

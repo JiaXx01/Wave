@@ -5,15 +5,13 @@ import {
   Inject,
   Post,
   Query,
-  Res,
   UseGuards
 } from '@nestjs/common'
 import { LoginDto } from './dto/login.dto'
 import { AuthService } from './auth.service'
 import { RefreshTokenGuard } from 'src/guard/refresh-token.guard'
-import { User } from 'src/custom.decorator'
-import { ReqUserInfo } from 'src/type'
-import { Response } from 'express'
+import { UserId } from 'src/custom.decorator'
+import { LogoutDto } from './dto/logout.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -27,29 +25,19 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() { email, code }: LoginDto, @Res() response: Response) {
-    const loginInfo = await this.authService.login(email, code)
-    response.cookie('access_token', loginInfo.tokens.accessToken, {
-      httpOnly: true
-    })
-    response.cookie('refresh_token', loginInfo.tokens.refreshToken, {
-      httpOnly: true
-    })
-    response.send(loginInfo)
+  async login(@Body() { email, code }: LoginDto) {
+    return await this.authService.login(email, code)
   }
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh/token')
-  async refreshToken(@User() user: ReqUserInfo) {
-    const { userId, email } = user
-    return this.authService.refreshToken(userId, email)
+  async refreshToken(@UserId() userId: string) {
+    return this.authService.refreshToken(userId)
   }
 
-  @Get('logout')
-  async logout() {
-    const accessToken = 'xxx'
-    const refreshToken = 'xxx'
-    await this.authService.logout(accessToken, refreshToken)
+  @Post('logout')
+  async logout(@Body() { refreshToken, accessToken }: LogoutDto) {
+    await this.authService.logout(refreshToken, accessToken)
     return '退出登录'
   }
 }

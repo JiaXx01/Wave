@@ -8,7 +8,7 @@ import {
 
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
-import { Observable } from 'rxjs'
+import { RedisService } from 'src/redis/redis.service'
 import { TokenPayload } from 'src/type'
 
 @Injectable()
@@ -16,9 +16,10 @@ export class AuthGuard implements CanActivate {
   @Inject()
   private jwt: JwtService
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  @Inject()
+  private redis: RedisService
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>()
 
     const token = this.extractTokenFromHeader(request)
@@ -27,11 +28,11 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException()
     }
     try {
-      const { userId, email } = this.jwt.verify<TokenPayload>(token)
-      request.user = {
-        userId,
-        email
+      const { userId } = this.jwt.verify<TokenPayload>(token)
+      if (await this.redis.checkTokenBlackList(token)) {
+        throw new UnauthorizedException()
       }
+      request.userId = userId
     } catch (error) {
       throw new UnauthorizedException()
     }

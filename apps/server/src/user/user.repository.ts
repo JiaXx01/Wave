@@ -21,4 +21,19 @@ export class UserRepository {
       where: { email }
     })
   }
+
+  async findByName(name: string) {
+    return this.prisma.user.findUnique({
+      where: { name }
+    })
+  }
+
+  async setName(id: string, name: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        name
+      }
+    })
+  }
 }

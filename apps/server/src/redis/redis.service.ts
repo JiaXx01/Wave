@@ -30,6 +30,6 @@ export class RedisService {
   }
 
   async checkTokenBlackList(token: string) {
-    return await this.redis.exists(TOKEN_BLACKLIST + token)
+    return (await this.redis.exists(TOKEN_BLACKLIST + token)) === 1
   }
 }
