@@ -10,8 +10,8 @@ export class EmailService {
       service: 'QQ',
       auth: {
         user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD,
-      },
+        pass: process.env.EMAIL_SERVER_PASSWORD
+      }
     })
   }
 
@@ -23,7 +23,7 @@ export class EmailService {
     this.sendEmail({
       from: {
         address: process.env.EMAIL_FROM!,
-        name: 'Wave',
+        name: 'Wave'
       },
       subject: '登录验证码',
       to: email,
@@ -32,7 +32,7 @@ export class EmailService {
           <h1>Wave</h1>
           <p>登录验证码为：${code}，有效期5分钟</p>
         </div>
-      `,
+      `
     })
   }
 }

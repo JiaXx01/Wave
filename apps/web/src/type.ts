@@ -11,3 +11,11 @@ export type User = {
   createTime: string
   updateTime: string
 }
+
+export type NoteInfo = {
+  id: string
+  title: string | null
+  userId: string
+  updateTime: string
+  createTime: string
+}
