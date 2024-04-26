@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { refreshAuth } from './auth'
-import { getTokens, removeTokens } from '../token'
+import { getTokens } from '../token'
 
 const http = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL
@@ -27,10 +27,11 @@ http.interceptors.response.use(
         config.headers.Authorization = 'Bearer ' + accessToken
         return axios(config)
       } catch (error) {
-        removeTokens()
-        setTimeout(() => {
-          window.location.href = '/login'
-        })
+        alert('token 失效了')
+        // removeTokens()
+        // setTimeout(() => {
+        //   window.location.href = '/login'
+        // })
       }
     } else {
       return Promise.reject(error)

@@ -4,6 +4,7 @@ import Login from './auth/Login'
 import Layout from './page/Layout'
 import Chat from './page/chat/Chat'
 import AllNotes from './page/note/AllNotes'
+import { getNotes } from '@/lib/api/note'
 const Note = lazy(() => import('./page/note/Note'))
 
 const router = createBrowserRouter([
@@ -17,7 +18,10 @@ const router = createBrowserRouter([
       },
       {
         path: 'note',
-        element: <AllNotes />
+        element: <AllNotes />,
+        loader: async () => {
+          return getNotes()
+        }
       },
       {
         path: 'note/:id',
