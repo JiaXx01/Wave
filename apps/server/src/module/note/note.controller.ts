@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Controller, Delete, Get, Post, Query, UseGuards } from '@nestjs/common'
 import { NoteService } from './note.service'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
@@ -16,5 +16,15 @@ export class NoteController {
   @Post()
   async create(@UserId() userId: string) {
     return await this.noteService.createNote(userId)
+  }
+
+  @Delete()
+  async deleteNotes(@UserId() userId: string, @Query('ids') ids: string) {
+    const noteIds = JSON.parse(ids)
+    const res = await this.noteService.deleteNotes(userId, noteIds)
+    return {
+      message: '删除成功',
+      res
+    }
   }
 }

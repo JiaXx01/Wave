@@ -1,14 +1,12 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { createNote } from '@/lib/api/note'
-import { NoteInfo } from '@/type'
+
 import { ListFilter, Plus } from 'lucide-react'
-import { useLoaderData, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import NoteList from './NoteList'
 
 export default function AllNotes() {
-  const noteList = useLoaderData() as NoteInfo[]
-
   const navigate = useNavigate()
   const onCreateNote = () => {
     createNote().then(({ id }) => {
@@ -34,7 +32,7 @@ export default function AllNotes() {
       <ScrollArea className="flex-1">
         <div className="h-5"></div>
         <div className="w-page">
-          <NoteList noteList={noteList} />
+          <NoteList />
         </div>
       </ScrollArea>
     </div>

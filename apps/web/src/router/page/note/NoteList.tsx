@@ -1,11 +1,66 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useImmer } from 'use-immer'
 import dayjs from 'dayjs'
 import { Checkbox } from '@/components/ui/checkbox'
-import { FileTextIcon, ListChecksIcon, Trash2Icon, XIcon } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu'
+import {
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  Copy,
+  Ellipsis,
+  FileDown,
+  FileTextIcon,
+  Link,
+  ListChecksIcon,
+  SquareArrowOutUpRight,
+  Trash2,
+  Trash2Icon,
+  XIcon
+} from 'lucide-react'
 import { NoteInfo } from '@/type'
+import { useToast } from '@/components/ui/use-toast'
+import { ToastAction } from '@/components/ui/toast'
+import { deleteNotes } from '@/lib/api/note'
+import { useLoaderData, useNavigate } from 'react-router-dom'
 
-export default function NoteList({ noteList }: { noteList: NoteInfo[] }) {
+type SortField = 'createTime' | 'updateTime'
+type SortOrder = boolean | undefined
+type Sort = Record<SortField, SortOrder>
+const DEFAULT_SORT: Sort = {
+  createTime: undefined,
+  updateTime: undefined
+}
+
+export default function NoteList() {
+  const navigate = useNavigate()
+  const notes = useLoaderData() as NoteInfo[]
+  const { toast } = useToast()
+  const [noteList, setNoteList] = useState(notes)
+
+  const NOTE_ACTIONS = {
+    open(id: string) {
+      navigate(`/note/${id}`)
+    },
+    copy(id: string) {},
+    export(id: string) {},
+    shareLink(id: string) {},
+    newTabOpen(id: string) {},
+    async delete(ids: string[]) {
+      deleteNotes(ids).then(() => {
+        setNoteList(noteList => {
+          return noteList.filter(note => !ids.includes(note.id))
+        })
+      })
+    }
+  }
+
+  // 选择
   const [showCheckBox, setShowCheckBox] = useState(false)
   const [selections, setSelections] = useImmer<Record<string, boolean>>({})
 
@@ -27,6 +82,12 @@ export default function NoteList({ noteList }: { noteList: NoteInfo[] }) {
     }
   }
 
+  const onHiddenCheckBox = () => {
+    setShowCheckBox(false)
+    toggleAllRowsSelected(false)
+  }
+
+  // 格式化时间
   const formatDate = (date: string) => {
     const now = dayjs()
     const targetDate = dayjs(date)
@@ -39,17 +100,36 @@ export default function NoteList({ noteList }: { noteList: NoteInfo[] }) {
     }
   }
 
-  const onHiddenCheckBox = () => {
-    setShowCheckBox(false)
-    toggleAllRowsSelected(false)
+  // 排序
+  const [sort, setSort] = useState<Sort>(DEFAULT_SORT)
+  const changeSort = (field: SortField) => {
+    setSort(sort => ({
+      ...DEFAULT_SORT,
+      [field]: !sort[field]
+    }))
   }
 
-  const onDeleteNote = () => {}
+  useEffect(() => {
+    const field = (Object.keys(sort) as SortField[]).find(
+      field => sort[field] !== undefined
+    )
+    if (!field) return
+    const order = sort[field] as boolean
+    setNoteList(noteList => {
+      return noteList.sort((a, b) => {
+        if (order) {
+          return new Date(a[field]).getTime() - new Date(b[field]).getTime()
+        } else {
+          return new Date(b[field]).getTime() - new Date(a[field]).getTime()
+        }
+      })
+    })
+  }, [noteList, sort])
 
   return (
     <div>
       <div className="sticky top-0 bg-background">
-        <div className="h-full w-full flex gap-2 items-center text-muted-foreground text-xs px-2">
+        <div className="h-full w-full flex gap-2 items-center text-muted-foreground text-xs px-2 pb-2">
           <div className="flex-1 flex gap-2 items-center">
             {!showCheckBox ? (
               <ListChecksIcon
@@ -68,15 +148,31 @@ export default function NoteList({ noteList }: { noteList: NoteInfo[] }) {
                 }}
               />
             )}
-            标题
+            <div className="flex gap-1 items-center select-none">标题</div>
           </div>
-          <div className="hidden sm:block w-[110px]">创建时间</div>
-          <div className="hidden sm:block w-[110px]">更改时间</div>
+          <div
+            className="hidden sm:flex gap-1 items-center w-[110px] hover:cursor-pointer select-none"
+            onClick={() => changeSort('createTime')}
+          >
+            创建时间
+            <SortIcon order={sort.createTime} />
+          </div>
+          <div
+            className="hidden sm:flex gap-1 items-center w-[110px] hover:cursor-pointer select-none"
+            onClick={() => changeSort('updateTime')}
+          >
+            更改时间
+            <SortIcon order={sort.updateTime} />
+          </div>
+          <div className="w-[26px]"></div>
         </div>
       </div>
       <div>
         {noteList.map(note => (
-          <div key={note.id} className="flex gap-2 items-center p-2 border-b">
+          <div
+            key={note.id}
+            className="flex gap-2 items-center p-2 hover:bg-accent"
+          >
             {showCheckBox && (
               <Checkbox
                 checked={selections[note.id] || false}
@@ -88,15 +184,76 @@ export default function NoteList({ noteList }: { noteList: NoteInfo[] }) {
                 }}
               />
             )}
-            <div className="flex-1 flex gap-2 items-center">
-              <FileTextIcon size="16" />
-              {note.title || '未命名'}
+            <div className="flex-1 flex">
+              <div
+                className="flex items-center gap-2 hover:underline hover:cursor-pointer"
+                onClick={() => NOTE_ACTIONS.open(note.id)}
+              >
+                <FileTextIcon size="16" />
+                {note.title || '未命名'}
+              </div>
+              <div className="flex-1"></div>
             </div>
             <div className="hidden sm:block w-[110px] text-xs text-muted-foreground">
               {formatDate(note.createTime)}
             </div>
             <div className="hidden sm:block w-[110px] text-xs text-muted-foreground">
               {formatDate(note.updateTime)}
+            </div>
+            <div className="text-muted-foreground">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-1 rounded-md">
+                    <Ellipsis size="18" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => NOTE_ACTIONS.copy(note.id)}>
+                    <Copy size="16" className="mr-2" />
+                    复制
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => NOTE_ACTIONS.export(note.id)}
+                  >
+                    <FileDown size="16" className="mr-2" />
+                    导出
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => NOTE_ACTIONS.shareLink(note.id)}
+                  >
+                    <Link size="16" className="mr-2" />
+                    分享链接
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => NOTE_ACTIONS.newTabOpen(note.id)}
+                  >
+                    <SquareArrowOutUpRight size="16" className="mr-2" />
+                    新标签页打开
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-red-500 focus:text-red-500"
+                    onClick={() => {
+                      toast({
+                        variant: 'destructive',
+                        title: `删除笔记 —— ${note.title || '未命名'}`,
+                        description: '删除后无法恢复！',
+                        action: (
+                          <ToastAction
+                            altText="Delete"
+                            onClick={() => NOTE_ACTIONS.delete([note.id])}
+                          >
+                            删除
+                          </ToastAction>
+                        )
+                      })
+                    }}
+                  >
+                    <Trash2 size="16" className="mr-2" />
+                    删除
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         ))}
@@ -114,13 +271,42 @@ export default function NoteList({ noteList }: { noteList: NoteInfo[] }) {
             <div className="w-[1px] border-l mx-1"></div>
             <button
               className="hover:bg-accent p-1 rounded-md"
-              onClick={onDeleteNote}
+              onClick={() => {
+                const selectedIds = Object.keys(selections)
+                if (selectedIds.length === 0) return
+                toast({
+                  variant: 'destructive',
+                  title: `删除选中的${selectedIds.length}篇笔记`,
+                  description: '删除后无法恢复！',
+                  action: (
+                    <ToastAction
+                      altText="Delete"
+                      onClick={() => NOTE_ACTIONS.delete(selectedIds)}
+                    >
+                      删除
+                    </ToastAction>
+                  )
+                })
+              }}
             >
-              <Trash2Icon size="18" />
+              <Trash2Icon size="18" color="red" />
             </button>
           </div>
         </div>
       )}
     </div>
+  )
+}
+
+function SortIcon({ order }: { order: SortOrder }) {
+  if (order === undefined) return null
+  return (
+    <>
+      {order ? (
+        <ArrowUpNarrowWide size="12" />
+      ) : (
+        <ArrowDownWideNarrow size="12" />
+      )}
+    </>
   )
 }

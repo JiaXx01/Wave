@@ -13,4 +13,8 @@ export class NoteService {
   async createNote(userId: string) {
     return this.note.create(userId)
   }
+
+  async deleteNotes(userId: string, noteIds: string[]) {
+    return this.note.delete(userId, noteIds)
+  }
 }

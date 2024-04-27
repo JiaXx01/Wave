@@ -32,4 +32,15 @@ export class NoteRepository {
       select: NOTE_INFO_SELECT
     })
   }
+
+  async delete(userId: string, noteIds: string[]) {
+    return this.prisma.note.deleteMany({
+      where: {
+        userId,
+        id: {
+          in: noteIds
+        }
+      }
+    })
+  }
 }

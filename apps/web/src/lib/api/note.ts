@@ -8,3 +8,13 @@ export const createNote = async (): Promise<NoteInfo> => {
 export const getNotes = async (): Promise<NoteInfo[]> => {
   return http.get('/note').then(res => res.data)
 }
+
+export const deleteNotes = async (ids: string[]) => {
+  return http
+    .delete('/note', {
+      params: {
+        ids: JSON.stringify(ids)
+      }
+    })
+    .then(res => res.data)
+}
