@@ -19,3 +19,7 @@ export type NoteInfo = {
   updateTime: string
   createTime: string
 }
+
+export type Note = {
+  content: object | null
+} & NoteInfo

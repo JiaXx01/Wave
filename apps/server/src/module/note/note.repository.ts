@@ -24,6 +24,12 @@ export class NoteRepository {
     })
   }
 
+  async findUserNote(userId: string, noteId: string) {
+    return this.prisma.note.findUnique({
+      where: { id: noteId, userId }
+    })
+  }
+
   async findUserNotes(userId: string) {
     return this.prisma.note.findMany({
       where: {

@@ -4,8 +4,8 @@ import Login from './auth/Login'
 import Layout from './page/Layout'
 import Chat from './page/chat/Chat'
 import AllNotes from './page/note/AllNotes'
-import { getNotes } from '@/lib/api/note'
-const Note = lazy(() => import('./page/note/Note'))
+import { findNote, getNotes } from '@/lib/api/note'
+const NotePage = lazy(() => import('./page/note/NotePage'))
 
 const router = createBrowserRouter([
   {
@@ -27,11 +27,11 @@ const router = createBrowserRouter([
         path: 'note/:id',
         element: (
           <Suspense>
-            <Note />
+            <NotePage />
           </Suspense>
         ),
         loader: async ({ params }) => {
-          return Promise.resolve(params.id)
+          return findNote(params.id!)
         }
       },
       {

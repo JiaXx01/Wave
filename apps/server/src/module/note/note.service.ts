@@ -10,6 +10,10 @@ export class NoteService {
     return this.note.findUserNotes(userId)
   }
 
+  async findNote(userId: string, noteId: string) {
+    return this.note.findUserNote(userId, noteId)
+  }
+
   async createNote(userId: string) {
     return this.note.create(userId)
   }

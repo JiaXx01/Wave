@@ -50,7 +50,9 @@ export default function NoteList() {
     copy(id: string) {},
     export(id: string) {},
     shareLink(id: string) {},
-    newTabOpen(id: string) {},
+    newTabOpen(id: string) {
+      window.open(`note/${id}`)
+    },
     async delete(ids: string[]) {
       deleteNotes(ids).then(() => {
         setNoteList(noteList => {

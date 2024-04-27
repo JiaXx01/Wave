@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Post, Query, UseGuards } from '@nestjs/common'
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards
+} from '@nestjs/common'
 import { NoteService } from './note.service'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
@@ -11,6 +19,11 @@ export class NoteController {
   @Get()
   async getNotes(@UserId() userId: string) {
     return await this.noteService.getNotes(userId)
+  }
+
+  @Get(':id')
+  async findNote(@UserId() userId: string, @Param() { id }: { id: string }) {
+    return await this.noteService.findNote(userId, id)
   }
 
   @Post()

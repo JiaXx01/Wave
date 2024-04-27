@@ -18,3 +18,7 @@ export const deleteNotes = async (ids: string[]) => {
     })
     .then(res => res.data)
 }
+
+export const findNote = async (id: string) => {
+  return http.get(`/note/${id}`).then(res => res.data)
+}
