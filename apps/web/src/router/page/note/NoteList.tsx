@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
   ArrowDownWideNarrow,
-  ArrowUpNarrowWide,
+  ArrowUpWideNarrow,
   Copy,
   Ellipsis,
   FileDown,
@@ -117,16 +117,22 @@ export default function NoteList() {
     )
     if (!field) return
     const order = sort[field] as boolean
-    setNoteList(noteList => {
-      return noteList.sort((a, b) => {
+    console.log(sort, field, order)
+    setNoteList(() => {
+      return notes.toSorted((a, b) => {
+        const timeA = new Date(a[field]).getTime()
+        const timeB = new Date(b[field]).getTime()
         if (order) {
-          return new Date(a[field]).getTime() - new Date(b[field]).getTime()
+          console.log(timeA - timeB)
+          return timeA - timeB
         } else {
-          return new Date(b[field]).getTime() - new Date(a[field]).getTime()
+          // 降序
+          console.log(timeB - timeA)
+          return timeB - timeA
         }
       })
     })
-  }, [noteList, sort])
+  }, [sort, notes])
 
   return (
     <div>
@@ -305,7 +311,7 @@ function SortIcon({ order }: { order: SortOrder }) {
   return (
     <>
       {order ? (
-        <ArrowUpNarrowWide size="12" />
+        <ArrowUpWideNarrow size="12" />
       ) : (
         <ArrowDownWideNarrow size="12" />
       )}
