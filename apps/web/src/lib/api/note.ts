@@ -22,3 +22,7 @@ export const deleteNotes = async (ids: string[]) => {
 export const findNote = async (id: string) => {
   return http.get(`/note/${id}`).then(res => res.data)
 }
+
+export const updateTitle = async (id: string, title: string) => {
+  return http.put(`/note/${id}/title`, { title }).then(res => res.data())
+}

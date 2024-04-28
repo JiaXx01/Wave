@@ -2,6 +2,7 @@ import { FileText } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Note } from '@/type'
 import { useLoaderData } from 'react-router-dom'
+import { updateTitle } from '@/lib/api/note'
 
 export default function NotePage() {
   const note = useLoaderData() as Note
@@ -10,9 +11,10 @@ export default function NotePage() {
   const [editTitle, setEditTitle] = useState(title || '')
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
-  const updateTitle = async () => {
-    if (editTitle === title) return
+  const onUpdateTitle = async () => {
+    if (!editTitle || editTitle === title) return
     setTitle(editTitle)
+    updateTitle(note.id, editTitle)
   }
 
   return (
@@ -29,7 +31,7 @@ export default function NotePage() {
               onChange={e => setEditTitle(e.target.value)}
               onBlur={() => {
                 setIsEditingTitle(false)
-                updateTitle()
+                onUpdateTitle()
               }}
             />
           ) : (
