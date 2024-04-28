@@ -9,3 +9,10 @@ export class UpdateTitleDto {
   })
   title: string
 }
+
+export class UpdateContentDto {
+  @IsNotEmpty({
+    message: '笔记内容不能为空'
+  })
+  content: any
+}

@@ -1,8 +1,10 @@
 import { FileText } from 'lucide-react'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useRef, useState } from 'react'
 import { Note } from '@/type'
 import { useLoaderData } from 'react-router-dom'
 import { updateTitle } from '@/lib/api/note'
+import PlateEditor from './PlateEditor'
 
 export default function NotePage() {
   const note = useLoaderData() as Note
@@ -49,11 +51,11 @@ export default function NotePage() {
           )}
         </div>
       </div>
-      {/* <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         <div className="w-page">
-          <PlateEditor note={note as Note} />
+          <PlateEditor id={note.id} content={note.content} />
         </div>
-      </ScrollArea> */}
+      </ScrollArea>
     </div>
   )
 }

@@ -12,7 +12,7 @@ import {
 import { NoteService } from './note.service'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
-import { UpdateTitleDto } from './dto/update-note.dto'
+import { UpdateContentDto, UpdateTitleDto } from './dto/update-note.dto'
 
 type ParamId = {
   id: string
@@ -36,6 +36,15 @@ export class NoteController {
   @Post()
   async create(@UserId() userId: string) {
     return await this.noteService.createNote(userId)
+  }
+
+  @Put(':id')
+  async updateContent(
+    @UserId() userId: string,
+    @Param() { id }: ParamId,
+    @Body() { content }: UpdateContentDto
+  ) {
+    await this.noteService.updateContent(userId, id, content)
   }
 
   @Put(':id/title')

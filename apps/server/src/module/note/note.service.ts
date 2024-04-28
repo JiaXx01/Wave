@@ -19,7 +19,11 @@ export class NoteService {
   }
 
   async updateTitle(userId: string, noteId: string, title: string) {
-    return this.note.updateTitle(userId, noteId, title)
+    return this.note.update(userId, noteId, { title })
+  }
+
+  async updateContent(userId: string, noteId: string, content: any) {
+    return this.note.update(userId, noteId, { content })
   }
 
   async deleteNotes(userId: string, noteIds: string[]) {
