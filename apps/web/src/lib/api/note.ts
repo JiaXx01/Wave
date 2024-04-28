@@ -1,11 +1,12 @@
 import { NoteInfo } from '@/type'
 import http from './http'
+import { Value } from '@udecode/plate-common'
 
 export const createNote = async (): Promise<NoteInfo> => {
   return http.post('/note').then(res => res.data)
 }
 
-export const getNotes = async (): Promise<NoteInfo[]> => {
+export const findNotes = async (): Promise<NoteInfo[]> => {
   return http.get('/note').then(res => res.data)
 }
 
@@ -24,5 +25,9 @@ export const findNote = async (id: string) => {
 }
 
 export const updateTitle = async (id: string, title: string) => {
-  return http.put(`/note/${id}/title`, { title }).then(res => res.data())
+  return http.put(`/note/${id}/title`, { title })
+}
+
+export const updateContent = async (id: string, content: Value) => {
+  return http.put(`/note/${id}`, { content })
 }

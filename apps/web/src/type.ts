@@ -1,3 +1,5 @@
+import { Value } from '@udecode/plate-common'
+
 export type Tokens = {
   accessToken: string
   refreshToken: string
@@ -21,5 +23,5 @@ export type NoteInfo = {
 }
 
 export type Note = {
-  content: object | null
+  content: Value | null
 } & NoteInfo

@@ -50,14 +50,19 @@ export class NoteRepository {
     })
   }
 
-  async updateTitle(userId: string, noteId: string, title: string) {
+  async update(
+    userId: string,
+    noteId: string,
+    { title, content }: { title?: string; content?: any }
+  ) {
     return this.prisma.note.update({
       where: {
         id: noteId,
         userId
       },
       data: {
-        title
+        title,
+        content
       }
     })
   }
