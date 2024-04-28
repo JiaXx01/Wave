@@ -27,7 +27,7 @@ import { NoteInfo } from '@/type'
 import { useToast } from '@/components/ui/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import { deleteNotes } from '@/lib/api/note'
-import { useLoaderData, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 type SortField = 'createTime' | 'updateTime'
 type SortOrder = boolean | undefined
@@ -37,9 +37,8 @@ const DEFAULT_SORT: Sort = {
   updateTime: undefined
 }
 
-export default function NoteList() {
+export default function NoteList({ notes }: { notes: NoteInfo[] }) {
   const navigate = useNavigate()
-  const notes = useLoaderData() as NoteInfo[]
   const { toast } = useToast()
   const [noteList, setNoteList] = useState(notes)
 
