@@ -103,7 +103,7 @@ export default function NoteList() {
   }
 
   // 排序
-  const [sort, setSort] = useState<Sort>(DEFAULT_SORT)
+  const [sort, setSort] = useState<Sort>({ ...DEFAULT_SORT, createTime: false })
   const changeSort = (field: SortField) => {
     setSort(sort => ({
       ...DEFAULT_SORT,
@@ -117,17 +117,14 @@ export default function NoteList() {
     )
     if (!field) return
     const order = sort[field] as boolean
-    console.log(sort, field, order)
     setNoteList(() => {
       return notes.toSorted((a, b) => {
         const timeA = new Date(a[field]).getTime()
         const timeB = new Date(b[field]).getTime()
         if (order) {
-          console.log(timeA - timeB)
           return timeA - timeB
         } else {
           // 降序
-          console.log(timeB - timeA)
           return timeB - timeA
         }
       })
