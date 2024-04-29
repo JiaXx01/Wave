@@ -5,6 +5,7 @@ import { createNote } from '@/lib/api/note'
 import { ListFilter, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import NoteList from './NoteList'
+import { useNotes } from '@/hooks/swr/note'
 
 export default function AllNotes() {
   const navigate = useNavigate()
@@ -13,7 +14,7 @@ export default function AllNotes() {
       navigate(`/note/${id}`)
     })
   }
-
+  const { notes } = useNotes()
   return (
     <div className="h-full flex flex-col">
       <div className="h-header px-2 flex items-center gap-2">
@@ -38,7 +39,7 @@ export default function AllNotes() {
       <ScrollArea className="flex-1">
         <div className="h-5"></div>
         <div className="w-page">
-          <NoteList />
+          <NoteList notes={notes || []} />
         </div>
       </ScrollArea>
     </div>

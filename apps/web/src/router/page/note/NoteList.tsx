@@ -37,9 +37,8 @@ const DEFAULT_SORT: Sort = {
   updateTime: undefined
 }
 
-export default function NoteList() {
+export default function NoteList({ notes }: { notes: NoteInfo[] }) {
   const navigate = useNavigate()
-  const notes = useLoaderData() as NoteInfo[]
   const { toast } = useToast()
   const [noteList, setNoteList] = useState(notes)
 
