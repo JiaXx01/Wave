@@ -12,6 +12,7 @@ export default function Layout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const { user, isLoading } = useMe()
+  // useNotes()
   if (isLoading) return null
   if (!user?.name) return <InitName />
   return (

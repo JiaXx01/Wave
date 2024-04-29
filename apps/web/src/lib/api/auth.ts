@@ -26,6 +26,7 @@ export const logout = async () => {
 
 export const refreshAuth = async () => {
   const res = await http.get('/auth/refresh/token')
+  console.log(res)
   setTokens({
     accessToken: res.data.accessToken,
     refreshToken: res.data.refreshToken

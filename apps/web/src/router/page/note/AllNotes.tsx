@@ -19,7 +19,13 @@ export default function AllNotes() {
       <div className="h-header px-2 flex items-center gap-2">
         <div className=" text-lg">所有笔记</div>
         <div className="ml-auto flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              window.localStorage.removeItem('accessToken')
+            }}
+          >
             <ListFilter className="h-4 w-4 mr-1" />
             筛选
           </Button>
