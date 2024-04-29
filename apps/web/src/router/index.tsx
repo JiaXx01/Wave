@@ -19,9 +19,6 @@ const router = createBrowserRouter([
       {
         path: 'note',
         element: <AllNotes />
-        // loader: async () => {
-        //   return getNotes()
-        // }
       },
       {
         path: 'note/:id',

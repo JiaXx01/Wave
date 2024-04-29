@@ -10,8 +10,9 @@ function App() {
         <SWRConfig
           value={{
             onErrorRetry: error => {
-              if (error.response.status === 401) return
+              if (error?.response?.status === 401) return
             }
+            // revalidateOnFocus: false
           }}
         >
           <Router />

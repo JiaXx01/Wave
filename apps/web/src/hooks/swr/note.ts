@@ -3,8 +3,6 @@ import { findNotes } from '@/lib/api/note'
 import useSWR from 'swr'
 
 export const useNotes = () => {
-  const { data: notes, isLoading } = useSWR('/note', findNotes, {
-    revalidateOnFocus: true
-  })
+  const { data: notes, isLoading } = useSWR('/note', findNotes)
   return { notes, isLoading }
 }

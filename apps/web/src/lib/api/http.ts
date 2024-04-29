@@ -6,13 +6,11 @@ const http = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL
 })
 
-type PendingTask = {
+let refreshing = false
+const reqQueue: {
   config: AxiosRequestConfig
   resolve: (value: unknown) => void
-}
-
-let refreshing = false
-const reqQueue: PendingTask[] = []
+}[] = []
 
 http.interceptors.request.use(config => {
   const { accessToken, refreshToken } = getTokens()
@@ -28,7 +26,12 @@ http.interceptors.response.use(
   response => response,
   async error => {
     const { config, status } = error.response
-
+    if (config.url == '/auth/refresh/token') {
+      removeTokens()
+      setTimeout(() => {
+        window.location.href = '/login'
+      })
+    }
     if (refreshing) {
       return new Promise(resolve => {
         reqQueue.push({
@@ -37,8 +40,7 @@ http.interceptors.response.use(
         })
       })
     }
-    refreshing = true
-    if (status === 401 && config.url !== '/auth/refresh/token') {
+    if (status === 401) {
       refreshing = true
       try {
         await refreshAuth()
@@ -51,10 +53,10 @@ http.interceptors.response.use(
         return http(config)
       } catch (error) {
         alert('token 失效了')
-        removeTokens()
-        setTimeout(() => {
-          window.location.href = '/login'
-        })
+        // removeTokens()
+        // setTimeout(() => {
+        //   window.location.href = '/login'
+        // })
       }
     } else {
       return Promise.reject(error)
