@@ -37,10 +37,15 @@ const DEFAULT_SORT: Sort = {
   updateTime: undefined
 }
 
-export default function NoteList({ notes }: { notes: NoteInfo[] }) {
+export default function NoteList({
+  notes,
+  mutate
+}: {
+  notes: NoteInfo[]
+  mutate: () => void
+}) {
   const navigate = useNavigate()
   const { toast } = useToast()
-  const [noteList, setNoteList] = useState(notes)
 
   const NOTE_ACTIONS = {
     open(id: string) {
@@ -60,9 +65,7 @@ export default function NoteList({ notes }: { notes: NoteInfo[] }) {
     },
     async delete(ids: string[]) {
       deleteNotes(ids).then(() => {
-        setNoteList(noteList => {
-          return noteList.filter(note => !ids.includes(note.id))
-        })
+        mutate()
       })
     }
   }
@@ -71,16 +74,29 @@ export default function NoteList({ notes }: { notes: NoteInfo[] }) {
   const [showCheckBox, setShowCheckBox] = useState(false)
   const [selections, setSelections] = useImmer<Record<string, boolean>>({})
 
+  useEffect(() => {
+    setSelections(selections => {
+      const idHash: Record<string, string> = {}
+      notes.forEach(note => {
+        idHash[note.id] = ' '
+      })
+      Object.keys(selections).forEach(id => {
+        if (!idHash.id) delete selections[id]
+      })
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes])
+
   const getIsAllRowsSelected = () => {
-    return Object.values(noteList).every(note => selections[note.id])
+    return Object.values(notes).every(note => selections[note.id])
   }
   const getIsSomeRowsSelected = () => {
-    return Object.values(noteList).some(note => selections[note.id])
+    return Object.values(notes).some(note => selections[note.id])
   }
   const toggleAllRowsSelected = (allSelected: boolean) => {
     if (allSelected) {
       setSelections(selections => {
-        Object.values(noteList).forEach(note => {
+        Object.values(notes).forEach(note => {
           selections[note.id] = true
         })
       })
@@ -108,6 +124,7 @@ export default function NoteList({ notes }: { notes: NoteInfo[] }) {
   }
 
   // 排序
+  const [noteList, setNoteList] = useState(notes)
   const [sort, setSort] = useState<Sort>({ ...DEFAULT_SORT, createTime: false })
   const changeSort = (field: SortField) => {
     setSort(sort => ({
@@ -115,7 +132,6 @@ export default function NoteList({ notes }: { notes: NoteInfo[] }) {
       [field]: !sort[field]
     }))
   }
-
   useEffect(() => {
     const field = (Object.keys(sort) as SortField[]).find(
       field => sort[field] !== undefined

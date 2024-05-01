@@ -32,7 +32,7 @@ const FIELD = {
 
 export default function AllNotes() {
   const navigate = useNavigate()
-  const { notes } = useNotes()
+  const { notes, mutate } = useNotes()
   const onCreateNote = () => {
     createNote().then(({ id }) => {
       navigate(`/note/${id}`)
@@ -107,7 +107,7 @@ export default function AllNotes() {
       <ScrollArea className="flex-1">
         <Filter filters={filters} setFilters={setFilters} />
         <div className="w-page">
-          <NoteList notes={visibleNotes} />
+          <NoteList notes={visibleNotes} mutate={mutate} />
         </div>
       </ScrollArea>
     </div>
