@@ -2,7 +2,7 @@ import { Value } from '@udecode/plate-common'
 
 export type NoteInfo = {
   id: string
-  title: string | null
+  title: string
   userId: string
   updateTime: string
   createTime: string

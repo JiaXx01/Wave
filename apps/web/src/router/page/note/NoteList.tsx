@@ -216,7 +216,7 @@ export default function NoteList({
                 onClick={() => NOTE_ACTIONS.open(note.id)}
               >
                 <FileTextIcon size="16" />
-                {note.title || '未命名'}
+                {note.title}
               </div>
               <div className="flex-1"></div>
             </div>
@@ -262,7 +262,7 @@ export default function NoteList({
                     onClick={() => {
                       toast({
                         variant: 'destructive',
-                        title: `删除笔记 —— ${note.title || '未命名'}`,
+                        title: `删除笔记 —— ${note.title}`,
                         description: '删除后无法恢复！',
                         action: (
                           <ToastAction

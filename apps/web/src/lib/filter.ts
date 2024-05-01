@@ -61,8 +61,9 @@ export const calculateNotesFilterCondition = (
 
 export const filterNotes = (notes: NoteInfo[], condition: Condition) => {
   return notes.filter(note => {
-    if (condition.title && !(note.title?.includes(condition.title) || false))
+    if (condition.title && !note.title.includes(condition.title)) {
       return false
+    }
     if (condition.createTime) {
       const { after, before } = condition.createTime
       if (before && dayjs(before).isBefore(note.createTime)) return false
