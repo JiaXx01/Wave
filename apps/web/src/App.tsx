@@ -11,8 +11,8 @@ function App() {
           value={{
             onErrorRetry: error => {
               if (error?.response?.status === 401) return
-            }
-            // revalidateOnFocus: false
+            },
+            revalidateOnFocus: false
           }}
         >
           <Router />

@@ -46,9 +46,15 @@ export default function NoteList({ notes }: { notes: NoteInfo[] }) {
     open(id: string) {
       navigate(`/note/${id}`)
     },
-    copy(id: string) {},
-    export(id: string) {},
-    shareLink(id: string) {},
+    copy(id: string) {
+      return id
+    },
+    export(id: string) {
+      return id
+    },
+    shareLink(id: string) {
+      return id
+    },
     newTabOpen(id: string) {
       window.open(`note/${id}`)
     },
@@ -133,7 +139,7 @@ export default function NoteList({ notes }: { notes: NoteInfo[] }) {
   return (
     <div>
       <div className="sticky top-0 bg-background">
-        <div className="h-full w-full flex gap-2 items-center text-muted-foreground text-xs px-2 pb-2">
+        <div className="h-full w-full flex gap-2 items-center text-muted-foreground text-xs p-2 pb-2">
           <div className="flex-1 flex gap-2 items-center">
             {!showCheckBox ? (
               <ListChecksIcon
