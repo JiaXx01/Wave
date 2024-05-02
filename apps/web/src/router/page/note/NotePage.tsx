@@ -5,18 +5,28 @@ import { Note } from '@/type'
 import { useLoaderData } from 'react-router-dom'
 import { updateTitle } from '@/lib/api/note'
 import PlateEditor from './PlateEditor'
+import { mutate } from 'swr'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function NotePage() {
   const note = useLoaderData() as Note
-
+  const { toast } = useToast()
   const [title, setTitle] = useState(note.title)
   const [editTitle, setEditTitle] = useState(title || '')
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const onUpdateTitle = async () => {
     if (!editTitle || editTitle === title) return
+    if (editTitle.length > 15) {
+      setEditTitle(title)
+      toast({
+        description: '笔记标题超过15个字符'
+      })
+      return
+    }
     setTitle(editTitle)
-    updateTitle(note.id, editTitle)
+    await updateTitle(note.id, editTitle)
+    mutate('/note')
   }
 
   return (

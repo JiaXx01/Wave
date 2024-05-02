@@ -35,6 +35,7 @@ export default function AllNotes() {
   const { notes, mutate } = useNotes()
   const onCreateNote = () => {
     createNote().then(({ id }) => {
+      mutate()
       navigate(`/note/${id}`)
     })
   }

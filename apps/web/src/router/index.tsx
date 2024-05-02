@@ -5,6 +5,7 @@ import Layout from './page/Layout'
 import Chat from './page/chat/Chat'
 import AllNotes from './page/note/AllNotes'
 import { findNote } from '@/lib/api/note'
+import KeepAliveLayout from './KeepAlive'
 const NotePage = lazy(() => import('./page/note/NotePage'))
 
 const router = createBrowserRouter([
@@ -44,5 +45,9 @@ const router = createBrowserRouter([
 ])
 
 export default function Router() {
-  return <RouterProvider router={router} />
+  return (
+    <KeepAliveLayout keepPaths={['/note']}>
+      <RouterProvider router={router} />
+    </KeepAliveLayout>
+  )
 }
