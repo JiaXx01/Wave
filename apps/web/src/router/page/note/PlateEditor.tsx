@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '@udecode/cn'
 import { CommentsProvider } from '@udecode/plate-comments'
 import { Plate, Value } from '@udecode/plate-common'
@@ -20,6 +20,7 @@ import { MentionCombobox } from '@/components/plate-ui/mention-combobox'
 import { TooltipProvider } from '@/components/plate-ui/tooltip'
 import { useDebounceEffect } from 'ahooks'
 import { updateContent } from '@/lib/api/note'
+import { mutate } from 'swr'
 
 export default function PlateEditor({
   id,
@@ -34,11 +35,20 @@ export default function PlateEditor({
   useDebounceEffect(
     () => {
       if (!value) return
+      if (!changed.current) changed.current = true
       updateContent(id, value)
     },
     [value],
     { wait: 500 }
   )
+  const changed = useRef(false)
+  useEffect(() => {
+    return () => {
+      if (changed.current) {
+        mutate('/note')
+      }
+    }
+  }, [])
 
   return (
     <TooltipProvider>
