@@ -4,8 +4,10 @@ import Login from './auth/Login'
 import Layout from './page/Layout'
 import Chat from './page/chat/Chat'
 import AllNotes from './page/note/AllNotes'
+import FileLayout from './page/file/FileLayout'
 import { findNote } from '@/lib/api/note'
 import KeepAliveLayout from './KeepAlive'
+import Files from './page/file/Files'
 const NotePage = lazy(() => import('./page/note/NotePage'))
 
 const router = createBrowserRouter([
@@ -35,6 +37,16 @@ const router = createBrowserRouter([
       {
         path: 'chat',
         element: <Chat />
+      },
+      {
+        // path: 'file',
+        element: <FileLayout />,
+        children: [
+          {
+            path: '/file/*',
+            element: <Files />
+          }
+        ]
       }
     ]
   },
@@ -46,7 +58,7 @@ const router = createBrowserRouter([
 
 export default function Router() {
   return (
-    <KeepAliveLayout keepPaths={['/note']}>
+    <KeepAliveLayout keepPaths={['/note', '/chat', '/file']}>
       <RouterProvider router={router} />
     </KeepAliveLayout>
   )
