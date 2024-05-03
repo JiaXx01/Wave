@@ -1,8 +1,9 @@
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import { useEffect } from 'react'
 import { useMe } from '@/hooks/swr/user'
 import InitName from './InitName'
+import { useKeepOutlet } from '../KeepAlive'
 
 export default function Layout() {
   const navigate = useNavigate()
@@ -11,6 +12,7 @@ export default function Layout() {
     if (!refreshToken) navigate('/login', { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  const element = useKeepOutlet()
   const { user, isLoading } = useMe()
   if (isLoading) return null
   if (!user?.name) return <InitName />
@@ -20,7 +22,8 @@ export default function Layout() {
         <Sidebar />
       </div>
       <div className="flex-1">
-        <Outlet />
+        {/* <Outlet /> */}
+        {element}
       </div>
     </div>
   )

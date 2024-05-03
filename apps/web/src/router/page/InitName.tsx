@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { initName } from '@/lib/api/user'
+import { useNavigate } from 'react-router-dom'
 
 const formSchema = z.object({
   name: z
@@ -25,6 +26,7 @@ const formSchema = z.object({
 })
 
 export default function InitName() {
+  const navigate = useNavigate()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,7 +36,7 @@ export default function InitName() {
 
   const onSubmit = async ({ name }: z.infer<typeof formSchema>) => {
     initName(name)
-      .then(() => {})
+      .then(() => navigate('/', { replace: true }))
       .catch(() => {})
   }
 

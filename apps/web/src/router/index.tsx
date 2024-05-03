@@ -1,8 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import Login from './auth/Login'
 import Layout from './page/Layout'
 import Chat from './page/chat/Chat'
-import Note from './page/note/Note'
+import AllNotes from './page/note/AllNotes'
+import { findNote } from '@/lib/api/note'
+import KeepAliveLayout from './KeepAlive'
+const NotePage = lazy(() => import('./page/note/NotePage'))
 
 const router = createBrowserRouter([
   {
@@ -14,8 +18,19 @@ const router = createBrowserRouter([
         element: <Navigate to="/note" />
       },
       {
-        path: '/note',
-        element: <Note />
+        path: 'note',
+        element: <AllNotes />
+      },
+      {
+        path: 'note/:id',
+        element: (
+          <Suspense>
+            <NotePage />
+          </Suspense>
+        ),
+        loader: async ({ params }) => {
+          return findNote(params.id!)
+        }
       },
       {
         path: 'chat',
@@ -30,5 +45,9 @@ const router = createBrowserRouter([
 ])
 
 export default function Router() {
-  return <RouterProvider router={router} />
+  return (
+    <KeepAliveLayout keepPaths={['/note']}>
+      <RouterProvider router={router} />
+    </KeepAliveLayout>
+  )
 }
