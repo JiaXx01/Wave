@@ -73,7 +73,7 @@ export default function AllNotes() {
   return (
     <div className="h-full flex flex-col">
       <header className="h-header px-2 flex items-center gap-2">
-        <div className=" text-lg">所有笔记</div>
+        <div className="text-lg">所有笔记</div>
         <div className="ml-auto flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger>
