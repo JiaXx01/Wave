@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config'
 import { RedisModule } from './redis/redis.module'
 import { JwtModule } from '@nestjs/jwt'
 import { NoteModule } from './module/note/note.module'
+import { FileModule } from './module/file/file.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { NoteModule } from './module/note/note.module'
     AuthModule,
     EmailModule,
     RedisModule,
-    NoteModule
+    NoteModule,
+    FileModule
   ],
   controllers: [AppController],
   providers: [AppService]
