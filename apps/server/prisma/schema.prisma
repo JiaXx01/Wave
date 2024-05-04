@@ -45,9 +45,9 @@ model File {
   type       String? // 文件类型 Content-Type
   suffix     String? // 文件后缀名
   hash       String?  @unique // 文件哈希
-  folderId   String? // 文件夹ID，允许为空
-  folder     File?    @relation("FilesInFolder", fields: [folderId], references: [id])
-  files      File[]   @relation("FilesInFolder") // 反向关系字段
+  // folderId   String? // 文件夹ID，允许为空
+  // folder     File?    @relation("FilesInFolder", fields: [folderId], references: [id])
+  // files      File[]   @relation("FilesInFolder") // 反向关系字段
   userId     String
   user       User     @relation(fields: [userId], references: [id])
   uploadTime DateTime @default(now())
