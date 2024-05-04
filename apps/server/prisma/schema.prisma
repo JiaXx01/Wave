@@ -22,14 +22,36 @@ model User {
   updateTime DateTime @updatedAt
 
   notes Note[]
+  files File[]
 }
 
 model Note {
   id         String   @id @default(cuid())
-  title      String  @db.VarChar(50) @default("未命名")
+  title      String   @default("未命名") @db.VarChar(50)
   content    Json?
   userId     String
   createTime DateTime @default(now())
   updateTime DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id])
+}
+
+model File {
+  id         String   @id @default(cuid())
+  name       String
+  url        String? // 文件资源路径
+  path       String // 文件所在路径
+  isFolder   Boolean // 是否是文件夹
+  size       Int? // 文件大小
+  type       String? // 文件类型 Content-Type
+  suffix     String? // 文件后缀名
+  hash       String?  @unique // 文件哈希
+  folderId   String? // 文件夹ID，允许为空
+  folder     File?    @relation("FilesInFolder", fields: [folderId], references: [id])
+  files      File[]   @relation("FilesInFolder") // 反向关系字段
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  uploadTime DateTime @default(now())
+
+  @@unique([userId, path])
+  @@index([userId, path])
 }
