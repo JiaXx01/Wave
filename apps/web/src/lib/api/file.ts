@@ -9,3 +9,13 @@ export const createFolder = (name: string, path: string): Promise<Folder> => {
     })
     .then(res => res.data)
 }
+
+export const findFiles = (path: string) => {
+  return http
+    .get('/file', {
+      params: {
+        path
+      }
+    })
+    .then(res => res.data)
+}

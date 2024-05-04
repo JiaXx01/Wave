@@ -9,4 +9,8 @@ export class FileService {
   async createFolder(userId: string, name: string, path?: string) {
     return this.file.createFolder(userId, name, path)
   }
+
+  async findFiles(userId: string, path: string) {
+    return this.file.findFiles(userId, path)
+  }
 }

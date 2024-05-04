@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common'
+import { Controller, Post, Body, UseGuards, Query, Get } from '@nestjs/common'
 import { FileService } from './file.service'
 import { CreateFolderDto } from './dto/create-file.dto'
 import { AuthGuard } from 'src/guard/auth.guard'
@@ -15,5 +15,10 @@ export class FileController {
     @Body() { name, path }: CreateFolderDto
   ) {
     return this.fileService.createFolder(userId, name, path)
+  }
+
+  @Get()
+  async findFiles(@UserId() userId: string, @Query('path') path: string) {
+    return this.fileService.findFiles(userId, path)
   }
 }

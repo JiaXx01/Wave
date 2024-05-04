@@ -9,10 +9,11 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import FileList from './FileList'
 export default function Files() {
   const { pathname } = useLocation()
-  const path = decodeURIComponent(pathname.slice(1))
-  const folders = path.split('/')
+  const path = decodeURIComponent(pathname)
+  const folders = path.slice(1).split('/')
   return (
     <div className="px-2">
       {folders.length > 1 && (
@@ -42,6 +43,7 @@ export default function Files() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       )}
+      <FileList path={path} />
     </div>
   )
 }

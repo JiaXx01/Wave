@@ -20,4 +20,10 @@ export class FileRepository {
       select: FOLDER_SELECT
     })
   }
+
+  async findFiles(userId: string, path: string = '/file') {
+    return this.prisma.file.findMany({
+      where: { userId, path }
+    })
+  }
 }
