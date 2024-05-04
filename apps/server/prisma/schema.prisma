@@ -52,6 +52,5 @@ model File {
   user       User     @relation(fields: [userId], references: [id])
   uploadTime DateTime @default(now())
 
-  @@unique([userId, path])
   @@index([userId, path])
 }
