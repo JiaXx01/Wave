@@ -18,7 +18,12 @@ export class FileController {
   }
 
   @Get()
-  async findFiles(@UserId() userId: string, @Query('path') path: string) {
-    return this.fileService.findFiles(userId, path)
+  async findFiles(
+    @UserId() userId: string,
+    @Query('path') path: string,
+    @Query('skip') skip?: number,
+    @Query('take') take?: number
+  ) {
+    return this.fileService.findFiles(userId, path, skip, take)
   }
 }

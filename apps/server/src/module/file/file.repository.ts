@@ -9,6 +9,14 @@ const FOLDER_SELECT = {
   uploadTime: true
 }
 
+const FILE_SELECT = {
+  ...FOLDER_SELECT,
+  url: true,
+  size: true,
+  type: true,
+  suffix: true
+}
+
 @Injectable()
 export class FileRepository {
   @Inject()
@@ -21,9 +29,32 @@ export class FileRepository {
     })
   }
 
-  async findFiles(userId: string, path: string = '/file') {
+  async findFolders(
+    userId: string,
+    path: string = '/file',
+    skip?: number,
+    take?: number
+  ) {
+    console.log(userId, path)
     return this.prisma.file.findMany({
-      where: { userId, path }
+      where: { userId, path, isFolder: true },
+      select: FOLDER_SELECT,
+      skip,
+      take
+    })
+  }
+
+  async findFiles(
+    userId: string,
+    path: string = '/file',
+    skip?: number,
+    take?: number
+  ) {
+    return this.prisma.file.findMany({
+      where: { userId, path, isFolder: false },
+      select: FILE_SELECT,
+      skip,
+      take
     })
   }
 }
