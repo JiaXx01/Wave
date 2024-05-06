@@ -17,10 +17,16 @@ export const findFiles = async (path: string) => {
   return http
     .get('/file', {
       params: {
-        path,
-        skip: 1,
-        take: 1
+        path
       }
+    })
+    .then(res => res.data)
+}
+
+export const getUploadUrl = async (name: string) => {
+  return http
+    .get('/file/uploadUrl', {
+      params: { name }
     })
     .then(res => res.data)
 }

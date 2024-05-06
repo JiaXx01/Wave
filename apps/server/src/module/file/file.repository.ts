@@ -38,9 +38,9 @@ export class FileRepository {
     console.log(userId, path)
     return this.prisma.file.findMany({
       where: { userId, path, isFolder: true },
-      select: FOLDER_SELECT,
-      skip,
-      take
+      select: FOLDER_SELECT
+      // skip,
+      // take
     })
   }
 
@@ -52,9 +52,9 @@ export class FileRepository {
   ) {
     return this.prisma.file.findMany({
       where: { userId, path, isFolder: false },
-      select: FILE_SELECT,
-      skip,
-      take
+      select: FILE_SELECT
+      // skip,
+      // take
     })
   }
 }

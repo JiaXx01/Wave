@@ -6,10 +6,10 @@ import { RedisModule as Redis } from '@nestjs-modules/ioredis'
 @Module({
   imports: [
     Redis.forRoot({
-      type: 'single',
-    }),
+      type: 'single'
+    })
   ],
   providers: [RedisService],
-  exports: [RedisService],
+  exports: [RedisService]
 })
 export class RedisModule {}

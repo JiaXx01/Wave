@@ -14,7 +14,7 @@ export class FileController {
     @UserId() userId: string,
     @Body() { name, path }: CreateFolderDto
   ) {
-    return this.fileService.createFolder(userId, name, path)
+    return await this.fileService.createFolder(userId, name, path)
   }
 
   @Get()
@@ -24,6 +24,15 @@ export class FileController {
     @Query('skip') skip?: number,
     @Query('take') take?: number
   ) {
-    return this.fileService.findFiles(userId, path, skip, take)
+    return await this.fileService.findFiles(userId, path, skip, take)
+  }
+
+  @Get('uploadUrl')
+  async getUploadUrl(
+    @UserId() userId: string,
+    @Query('name') name: string,
+    @Query('path') path: string
+  ) {
+    return await this.fileService.getUploadUrl(userId, name, path)
   }
 }

@@ -1,3 +1,9 @@
+import { getUploadUrl } from './api/file'
+import SparkMd5 from 'spark-md5'
+import FileHashWorker from './worker/fileHash?worker'
+
+const FILE_CHUNK_SIZE = 5 * 1024 * 1024
+
 export function selectFileFromLocal(options?: {
   accept?: string
   maxSize?: number
@@ -19,4 +25,31 @@ export function selectFileFromLocal(options?: {
     })
     input.click()
   })
+}
+
+const calculateHash = async (file: File): Promise<string> => {
+  const worker = new FileHashWorker()
+  worker.postMessage(file)
+  return new Promise(resolve => {
+    worker.onmessage = e => {
+      resolve(e.data as string)
+    }
+  })
+}
+
+export const uploadFile = async (file: File) => {
+  if (file.size <= FILE_CHUNK_SIZE) {
+    const hash = await calculateHash(file)
+    const url = await getUploadUrl(hash)
+    fetch(url, {
+      method: 'PUT',
+      body: file
+    })
+  } else {
+    spliceUpload(file)
+  }
+}
+
+const spliceUpload = (file: File) => {
+  console.log(file)
 }
