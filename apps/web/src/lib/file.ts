@@ -1,5 +1,4 @@
 import { getUploadUrl } from './api/file'
-import SparkMd5 from 'spark-md5'
 import FileHashWorker from './worker/fileHash?worker'
 
 const FILE_CHUNK_SIZE = 5 * 1024 * 1024

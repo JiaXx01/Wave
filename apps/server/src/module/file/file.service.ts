@@ -10,7 +10,7 @@ export class FileService {
   @Inject('MinioModule')
   private minio: MinioClient
 
-  async getUploadUrl(userId: string, name: string, path: string) {
+  async getUploadUrl(userId: string, name: string) {
     return this.minio.presignedPutObject('file', name)
   }
 

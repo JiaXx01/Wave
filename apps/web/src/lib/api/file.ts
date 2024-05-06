@@ -23,10 +23,10 @@ export const findFiles = async (path: string) => {
     .then(res => res.data)
 }
 
-export const getUploadUrl = async (name: string) => {
+export const getUploadUrl = async (hash: string) => {
   return http
     .get('/file/uploadUrl', {
-      params: { name }
+      params: { hash }
     })
     .then(res => res.data)
 }

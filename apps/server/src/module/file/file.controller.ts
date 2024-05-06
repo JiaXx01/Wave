@@ -28,11 +28,7 @@ export class FileController {
   }
 
   @Get('uploadUrl')
-  async getUploadUrl(
-    @UserId() userId: string,
-    @Query('name') name: string,
-    @Query('path') path: string
-  ) {
-    return await this.fileService.getUploadUrl(userId, name, path)
+  async getUploadUrl(@UserId() userId: string, @Query('name') hash: string) {
+    return await this.fileService.getUploadUrl(userId, hash)
   }
 }
