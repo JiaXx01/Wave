@@ -25,7 +25,23 @@ export const findFiles = async (path: string) => {
 
 export const getUploadUrl = async (hash: string) => {
   return http
-    .get('/file/uploadUrl', {
+    .get('/file/presigned-url', {
+      params: { hash }
+    })
+    .then(res => res.data)
+}
+
+export const getChunkUploadUrl = async (hashNo: string) => {
+  return http
+    .get('/file/chunk/presigned-url', {
+      params: { hashNo }
+    })
+    .then(res => res.data)
+}
+
+export const mergeChunks = async (hash: string) => {
+  return http
+    .get('/file/chunk/merge', {
       params: { hash }
     })
     .then(res => res.data)

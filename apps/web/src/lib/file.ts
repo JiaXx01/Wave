@@ -1,7 +1,8 @@
-import { getUploadUrl } from './api/file'
+import { getChunkUploadUrl, getUploadUrl, mergeChunks } from './api/file'
 import FileHashWorker from './worker/fileHash?worker'
+import FileSliceWorker from './worker/fileSlice?worker'
 
-const FILE_CHUNK_SIZE = 5 * 1024 * 1024
+const CHUNK_SIZE = 5 * 1024 * 1024
 
 export function selectFileFromLocal(options?: {
   accept?: string
@@ -36,8 +37,20 @@ const calculateHash = async (file: File): Promise<string> => {
   })
 }
 
+type SliceFileResult = { chunkList: Blob[]; hash: string }
+
+const sliceFile = async (file: File): Promise<SliceFileResult> => {
+  const worker = new FileSliceWorker()
+  worker.postMessage({ file, chunkSize: CHUNK_SIZE })
+  return new Promise(resolve => {
+    worker.onmessage = e => {
+      resolve(e.data as SliceFileResult)
+    }
+  })
+}
+
 export const uploadFile = async (file: File) => {
-  if (file.size <= FILE_CHUNK_SIZE) {
+  if (file.size <= CHUNK_SIZE) {
     const hash = await calculateHash(file)
     const url = await getUploadUrl(hash)
     fetch(url, {
@@ -45,10 +58,23 @@ export const uploadFile = async (file: File) => {
       body: file
     })
   } else {
-    spliceUpload(file)
-  }
-}
+    const { chunkList, hash } = await sliceFile(file)
+    console.log(hash)
+    /**
+     * 根据文件hash判断文件是秒传还是续传还是完整上传
+     */
 
-const spliceUpload = (file: File) => {
-  console.log(file)
+    // 完整上传
+    const uploadList = chunkList.map(async (chunk, index) => {
+      const hashNo = hash + '/' + index
+      return getChunkUploadUrl(hashNo).then(url => {
+        fetch(url, {
+          method: 'PUT',
+          body: chunk
+        })
+      })
+    })
+    await Promise.all(uploadList)
+    mergeChunks(hash)
+  }
 }

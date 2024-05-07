@@ -27,8 +27,18 @@ export class FileController {
     return await this.fileService.findFiles(userId, path, skip, take)
   }
 
-  @Get('uploadUrl')
-  async getUploadUrl(@UserId() userId: string, @Query('name') hash: string) {
-    return await this.fileService.getUploadUrl(userId, hash)
+  @Get('presigned-url')
+  async getUploadUrl(@UserId() userId: string, @Query('hash') hash: string) {
+    return await this.fileService.getFileUploadUrl(userId, hash)
+  }
+
+  @Get('chunk/presigned-url')
+  async getChunkPresignedUrl(@Query('hashNo') hashNo: string) {
+    return await this.fileService.getChunkPresignedUrl(hashNo)
+  }
+
+  @Get('chunk/merge')
+  async mergeChunk(@UserId() userId: string, @Query('hash') hash: string) {
+    return await this.fileService.mergeChunks(userId, hash)
   }
 }
