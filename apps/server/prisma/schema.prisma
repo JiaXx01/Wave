@@ -44,10 +44,11 @@ model File {
   size       Int? // 文件大小
   type       String? // 文件类型 Content-Type
   suffix     String? // 文件后缀名
-  hash       String?  @unique // 文件哈希
+  hash       String? // 文件哈希
   userId     String
   user       User     @relation(fields: [userId], references: [id])
   uploadTime DateTime @default(now())
 
   @@index([userId, path])
+  @@index([userId, hash])
 }

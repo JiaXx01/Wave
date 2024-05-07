@@ -1,4 +1,4 @@
-import { Folder } from '@/type'
+import { CreateFileParams, Folder } from '@/type'
 import http from './http'
 
 export const createFolder = async (
@@ -11,6 +11,10 @@ export const createFolder = async (
       path
     })
     .then(res => res.data)
+}
+
+export const createFile = async (fileInfo: CreateFileParams) => {
+  return http.post('/file', fileInfo).then(res => res.data)
 }
 
 export const findFiles = async (path: string) => {
@@ -39,10 +43,12 @@ export const getChunkUploadUrl = async (hashNo: string) => {
     .then(res => res.data)
 }
 
-export const mergeChunks = async (hash: string) => {
-  return http
-    .get('/file/chunk/merge', {
-      params: { hash }
-    })
-    .then(res => res.data)
+export const mergeChunks = async (fileInfo: CreateFileParams) => {
+  return http.post('/file/chunk/merge', fileInfo).then(res => res.data)
+}
+
+export const checkFileHash = async (
+  hash: string
+): Promise<boolean | string[]> => {
+  return http.get('/file/check/' + hash).then(res => res.data)
 }

@@ -1,6 +1,14 @@
-import { Controller, Post, Body, UseGuards, Query, Get } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Query,
+  Get,
+  Param
+} from '@nestjs/common'
 import { FileService } from './file.service'
-import { CreateFolderDto } from './dto/create-file.dto'
+import { CreateFileDto, CreateFolderDto } from './dto/create-file.dto'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
 
@@ -8,6 +16,11 @@ import { UserId } from 'src/custom.decorator'
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
+
+  @Post()
+  async createFile(@UserId() userId: string, @Body() fileInfo: CreateFileDto) {
+    return await this.fileService.createFile(userId, fileInfo)
+  }
 
   @Post('folder')
   async createFolder(
@@ -37,8 +50,13 @@ export class FileController {
     return await this.fileService.getChunkPresignedUrl(hashNo)
   }
 
-  @Get('chunk/merge')
-  async mergeChunk(@UserId() userId: string, @Query('hash') hash: string) {
-    return await this.fileService.mergeChunks(userId, hash)
+  @Post('chunk/merge')
+  async mergeChunk(@UserId() userId: string, @Body() fileInfo: CreateFileDto) {
+    return await this.fileService.mergeChunks(userId, fileInfo)
+  }
+
+  @Get('check/:hash')
+  async checkHash(@Param('hash') hash: string) {
+    return await this.fileService.checkHash(hash)
   }
 }

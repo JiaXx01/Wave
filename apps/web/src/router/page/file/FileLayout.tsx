@@ -28,7 +28,7 @@ export default function FileLayout() {
         <div className="text-lg">{folders.at(-1)}</div>
         <div>
           <CreateFolder mutate={mutate} />
-          <UploadFile />
+          <UploadFile path={path} />
         </div>
       </header>
       <ScrollArea className="flex-1">
@@ -38,11 +38,11 @@ export default function FileLayout() {
   )
 }
 
-function UploadFile() {
+function UploadFile({ path }: { path: string }) {
   const uploadRef = useRef<HTMLInputElement>(null)
   const onUpload: ChangeEventHandler<HTMLInputElement> = async e => {
     const file = e.target.files![0]
-    await uploadFile(file)
+    await uploadFile(file, path)
     e.target.value = ''
   }
   return (

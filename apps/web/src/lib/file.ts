@@ -1,6 +1,13 @@
-import { getChunkUploadUrl, getUploadUrl, mergeChunks } from './api/file'
+import {
+  checkFileHash,
+  createFile,
+  getChunkUploadUrl,
+  getUploadUrl,
+  mergeChunks
+} from './api/file'
 import FileHashWorker from './worker/fileHash?worker'
 import FileSliceWorker from './worker/fileSlice?worker'
+import mime from 'mime'
 
 const CHUNK_SIZE = 5 * 1024 * 1024
 
@@ -49,17 +56,26 @@ const sliceFile = async (file: File): Promise<SliceFileResult> => {
   })
 }
 
-export const uploadFile = async (file: File) => {
+export const uploadFile = async (file: File, path: string) => {
   if (file.size <= CHUNK_SIZE) {
     const hash = await calculateHash(file)
-    const url = await getUploadUrl(hash)
-    fetch(url, {
-      method: 'PUT',
-      body: file
+    const existed = await checkFileHash(hash)
+    if (!existed) {
+      const url = await getUploadUrl(hash)
+      await fetch(url, {
+        method: 'PUT',
+        body: file
+      })
+    }
+    await createFile({
+      name: file.name,
+      type: file.type,
+      path,
+      hash,
+      suffix: mime.getExtension(file.type)
     })
   } else {
     const { chunkList, hash } = await sliceFile(file)
-    console.log(hash)
     /**
      * 根据文件hash判断文件是秒传还是续传还是完整上传
      */
@@ -67,14 +83,20 @@ export const uploadFile = async (file: File) => {
     // 完整上传
     const uploadList = chunkList.map(async (chunk, index) => {
       const hashNo = hash + '/' + index
-      return getChunkUploadUrl(hashNo).then(url => {
-        fetch(url, {
+      return await getChunkUploadUrl(hashNo).then(url => {
+        return fetch(url, {
           method: 'PUT',
           body: chunk
         })
       })
     })
     await Promise.all(uploadList)
-    mergeChunks(hash)
+    await mergeChunks({
+      name: file.name,
+      type: file.type,
+      path,
+      hash,
+      suffix: mime.getExtension(file.type)
+    })
   }
 }

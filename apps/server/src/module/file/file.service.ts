@@ -5,6 +5,7 @@ import {
   CopySourceOptions,
   CopyDestinationOptions
 } from 'minio'
+import { CreateFileDto } from './dto/create-file.dto'
 
 @Injectable()
 export class FileService {
@@ -22,7 +23,9 @@ export class FileService {
     return this.minio.presignedPutObject('chunk', hashNo)
   }
 
-  async mergeChunks(userId: string, hash: string) {
+  async mergeChunks(userId: string, fileInfo: CreateFileDto) {
+    const hash = fileInfo.hash
+    // 获取所有切片名称
     const chunkHashNoList: string[] = await new Promise((resolve) => {
       const list: string[] = []
       const stream = this.minio.listObjects('chunk', hash, true)
@@ -31,6 +34,7 @@ export class FileService {
         resolve(list)
       })
     })
+    // 合并切片
     const sourceList = chunkHashNoList.map((hashNo) => {
       return new CopySourceOptions({
         Bucket: 'chunk',
@@ -44,7 +48,14 @@ export class FileService {
       }),
       sourceList
     )
+    // 删除切片
     await this.minio.removeObjects('chunk', chunkHashNoList)
+    // 文件信息写入数据库
+    return await this.file.createFile(userId, fileInfo)
+  }
+
+  async createFile(userId: string, fileInfo: CreateFileDto) {
+    return await this.file.createFile(userId, fileInfo)
   }
 
   async createFolder(userId: string, name: string, path?: string) {
@@ -55,5 +66,27 @@ export class FileService {
     const folders = await this.file.findFolders(userId, path, skip, take)
     const files = await this.file.findFiles(userId, path, skip, take)
     return { folders, files }
+  }
+
+  async checkHash(hash: string) {
+    try {
+      await this.minio.statObject('file', hash)
+      return true
+    } catch (err) {
+      const chunkHashNoList = await this.getUploadedChunkHashNo(hash)
+      if (chunkHashNoList.length === 0) return false
+      else return chunkHashNoList
+    }
+  }
+
+  private async getUploadedChunkHashNo(hash: string): Promise<string[]> {
+    return new Promise((resolve) => {
+      const list: string[] = []
+      const stream = this.minio.listObjects('chunk', hash, true)
+      stream.on('data', (obj) => list.push(obj.name as string))
+      stream.on('end', () => {
+        resolve(list)
+      })
+    })
   }
 }
