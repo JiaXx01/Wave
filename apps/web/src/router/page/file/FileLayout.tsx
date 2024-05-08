@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ChangeEventHandler, useRef, useState } from 'react'
+import { ChangeEventHandler, useEffect, useRef, useState } from 'react'
 import { createFolder } from '@/lib/api/file'
 import { useFiles } from '@/hooks/swr/file'
 import { uploadFile } from '@/lib/file'
@@ -24,8 +24,10 @@ export default function FileLayout() {
   const { mutate } = useFiles(path)
   return (
     <div className="w-page flex flex-col">
-      <header className="h-header flex items-center justify-between p-2">
-        <div className="text-lg">{folders.at(-1)}</div>
+      <header className="h-header flex items-center justify-between gap-2 p-2">
+        <div className="text-lg flex-1 overflow-hidden text-ellipsis">
+          {folders.at(-1)}
+        </div>
         <div>
           <CreateFolder mutate={mutate} />
           <UploadFile path={path} />
@@ -74,6 +76,9 @@ function CreateFolder({ mutate }: { mutate: () => void }) {
     })
   }
   const [open, setOpen] = useState(false)
+  useEffect(() => {
+    if (!open) setName('')
+  }, [open])
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
@@ -88,11 +93,11 @@ function CreateFolder({ mutate }: { mutate: () => void }) {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="folder_name" className="text-right">
               文件夹名称
             </Label>
             <Input
-              id="name"
+              id="folder_name"
               value={name}
               onChange={e => setName(e.target.value)}
               className="col-span-3"

@@ -22,6 +22,11 @@ export class CreateFileDto {
     message: '文件hash不能为空'
   })
   hash: string
+
+  @IsNotEmpty({
+    message: '文件size不能为空'
+  })
+  size: number
 }
 
 export class CreateFolderDto {
@@ -30,5 +35,5 @@ export class CreateFolderDto {
   })
   name: string
 
-  path?: string
+  path: string
 }

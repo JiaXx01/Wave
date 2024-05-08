@@ -1,10 +1,10 @@
-import { CreateFileParams, Folder } from '@/type'
+import { CreateFileParams, FileInfo, FolderInfo } from '@/type'
 import http from './http'
 
 export const createFolder = async (
   name: string,
   path: string
-): Promise<Folder> => {
+): Promise<FolderInfo> => {
   return http
     .post('/file/folder', {
       name,
@@ -17,7 +17,9 @@ export const createFile = async (fileInfo: CreateFileParams) => {
   return http.post('/file', fileInfo).then(res => res.data)
 }
 
-export const findFiles = async (path: string) => {
+export const findFiles = async (
+  path: string
+): Promise<{ files: FileInfo[]; folders: FolderInfo[] }> => {
   return http
     .get('/file', {
       params: {

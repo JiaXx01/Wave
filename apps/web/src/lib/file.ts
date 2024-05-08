@@ -9,6 +9,18 @@ import FileHashWorker from './worker/fileHash?worker'
 import FileSliceWorker from './worker/fileSlice?worker'
 import mime from 'mime'
 
+import ExcelIcon from '@/assets/file_icon/excel.png'
+import ImageIcon from '@/assets/file_icon/image.png'
+import LinkIcon from '@/assets/file_icon/link.png'
+import RadioIcon from '@/assets/file_icon/radio.png'
+import PdfIcon from '@/assets/file_icon/pdf.png'
+import PptIcon from '@/assets/file_icon/ppt.png'
+import TxtIcon from '@/assets/file_icon/txt.png'
+import UnknownIcon from '@/assets/file_icon/unknown.png'
+import VideoIcon from '@/assets/file_icon/video.png'
+import WordIcon from '@/assets/file_icon/word.png'
+import ZipIcon from '@/assets/file_icon/zip.png'
+
 const CHUNK_SIZE = 5 * 1024 * 1024
 
 export function selectFileFromLocal(options?: {
@@ -72,7 +84,8 @@ export const uploadFile = async (file: File, path: string) => {
       type: file.type,
       path,
       hash,
-      suffix: mime.getExtension(file.type)
+      suffix: mime.getExtension(file.type),
+      size: file.size
     })
   } else {
     const { chunkList, hash } = await sliceFile(file)
@@ -96,7 +109,53 @@ export const uploadFile = async (file: File, path: string) => {
       type: file.type,
       path,
       hash,
-      suffix: mime.getExtension(file.type)
+      suffix: mime.getExtension(file.type),
+      size: file.size
     })
   }
+}
+
+export const FILE_ICON = {
+  excel: ExcelIcon,
+  image: ImageIcon,
+  link: LinkIcon,
+  radio: RadioIcon,
+  pdf: PdfIcon,
+  ppt: PptIcon,
+  txt: TxtIcon,
+  unknown: UnknownIcon,
+  video: VideoIcon,
+  word: WordIcon,
+  zip: ZipIcon
+}
+
+export const getFileIcon = (suffix?: string | null) => {
+  if (!suffix) return FILE_ICON.unknown
+  // 图片格式
+  const imgList = ['png', 'jpg', 'jpeg', 'bmp', 'gif']
+  // 匹配图片
+  if (imgList.includes(suffix)) return FILE_ICON.image
+  // 匹配 txt
+  if (suffix === 'txt') return FILE_ICON.txt
+  // 匹配 excel
+  const excelList = ['xls', 'xlsx']
+  if (excelList.includes(suffix)) return FILE_ICON.excel
+  // 匹配 word
+  const wordList = ['doc', 'docx']
+  if (wordList.includes(suffix)) return FILE_ICON.word
+  // 匹配 pdf
+  if (suffix === 'pdf') return FILE_ICON.pdf
+  // 匹配 ppt
+  const pptList = ['ppt', 'pptx']
+  if (pptList.includes(suffix)) return FILE_ICON.ppt
+  // 匹配 视频
+  const videoList = ['mp4', 'm2v', 'mkv']
+  if (videoList.includes(suffix)) return FILE_ICON.video
+  // 匹配 音频
+  const radioList = ['mp3', 'wav', 'wmv']
+  if (radioList.includes(suffix)) return FILE_ICON.radio
+  const compressList = ['zip', 'rar', '7z']
+  if (compressList.includes(suffix)) return FILE_ICON.zip
+  // 其他 文件类型
+  return FILE_ICON.unknown
 }
