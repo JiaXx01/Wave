@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom'
 export default function FileList({ path }: { path: string }) {
   const navigate = useNavigate()
   const { files, isLoading } = useFiles(path)
-  if (isLoading) return null
+  if (isLoading || !files) return null
   if (!files) return navigate('/file', { replace: true })
   return (
     <div className="grid grid-cols-4 sm:grid-cols-7 md:grid-cols-6 lg:grid-cols-9 gap-3 p-2 place-self-center">

@@ -6,6 +6,8 @@ export const useFiles = (path: string) => {
     data: files,
     isLoading,
     mutate
-  } = useSWR(['/file', path], ([, path]) => findFiles(path))
+  } = useSWR(['/file', path], ([, path]) =>
+    path.startsWith('/file') ? findFiles(path) : null
+  )
   return { files, isLoading, mutate }
 }
