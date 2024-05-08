@@ -68,9 +68,8 @@ export class FileService {
       const folder = await this.file.findFolderByPath(
         userId,
         paths.slice(0, -1).join('/'),
-        path.at(-1) as string
+        paths.at(-1) as string
       )
-      console.log(folder)
       if (!folder) {
         throw new HttpException('文件夹不存在', HttpStatus.NOT_FOUND)
       }
