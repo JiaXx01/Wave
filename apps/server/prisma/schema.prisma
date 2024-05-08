@@ -38,7 +38,6 @@ model Note {
 model File {
   id         String   @id @default(cuid())
   name       String
-  url        String? // 文件资源路径
   path       String // 文件所在路径
   isFolder   Boolean // 是否是文件夹
   size       Int? // 文件大小
