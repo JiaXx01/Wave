@@ -37,10 +37,22 @@ export class FileRepository {
       type: string
       suffix?: string
       hash: string
+      size: number
     }
   ) {
     return this.prisma.file.create({
       data: { userId, ...fileInfo, isFolder: false }
+    })
+  }
+
+  async findFolderByPath(userId: string, path: string, name: string) {
+    return this.prisma.file.findFirst({
+      where: {
+        userId,
+        path,
+        name,
+        isFolder: true
+      }
     })
   }
 
@@ -50,7 +62,6 @@ export class FileRepository {
     skip?: number,
     take?: number
   ) {
-    console.log(userId, path)
     return this.prisma.file.findMany({
       where: { userId, path, isFolder: true },
       select: FOLDER_SELECT,

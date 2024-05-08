@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { FileRepository } from './file.repository'
 import {
   Client as MinioClient,
@@ -63,6 +63,18 @@ export class FileService {
   }
 
   async findFiles(userId: string, path: string, skip?: number, take?: number) {
+    if (path !== '/file') {
+      const paths = path.split('/')
+      const folder = await this.file.findFolderByPath(
+        userId,
+        paths.slice(0, -1).join('/'),
+        path.at(-1) as string
+      )
+      console.log(folder)
+      if (!folder) {
+        throw new HttpException('文件夹不存在', HttpStatus.NOT_FOUND)
+      }
+    }
     const folders = await this.file.findFolders(userId, path, skip, take)
     const files = await this.file.findFiles(userId, path, skip, take)
     return { folders, files }
