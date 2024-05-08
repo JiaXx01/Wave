@@ -34,7 +34,7 @@ export class FileRepository {
     fileInfo: {
       name: string
       path: string
-      type: string
+      type?: string
       suffix?: string
       hash: string
       size: number

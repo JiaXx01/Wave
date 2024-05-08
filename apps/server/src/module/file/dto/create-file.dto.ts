@@ -11,10 +11,10 @@ export class CreateFileDto {
   })
   path: string
 
-  @IsNotEmpty({
-    message: '文件mime-type类型不能为空'
-  })
-  type: string
+  // @IsNotEmpty({
+  //   message: '文件mime-type类型不能为空'
+  // })
+  type?: string
 
   suffix?: string
 
