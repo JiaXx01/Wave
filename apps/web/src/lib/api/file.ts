@@ -54,3 +54,9 @@ export const checkFileHash = async (
 ): Promise<boolean | string[]> => {
   return http.get('/file/check/' + hash).then(res => res.data)
 }
+
+export const deleteFiles = async (ids: string[]) => {
+  return http.delete('/file', {
+    data: { ids }
+  })
+}

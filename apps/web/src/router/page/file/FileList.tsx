@@ -10,10 +10,11 @@ import { FileInfo, FolderInfo } from '@/type'
 import { getFileIcon } from '@/lib/file'
 import { useNavigate } from 'react-router-dom'
 import useAlert from '@/components/alert/useAlert'
+import { deleteFiles } from '@/lib/api/file'
 
 export default function FileList({ path }: { path: string }) {
   const navigate = useNavigate()
-  const { files, isLoading } = useFiles(path)
+  const { files, isLoading, mutate } = useFiles(path)
   if (isLoading || !files) return null
   if (!files) navigate('/file', { replace: true })
   return (
@@ -24,7 +25,7 @@ export default function FileList({ path }: { path: string }) {
         ))}
 
         {files.files.map(file => (
-          <FileItem key={file.id} file={file} />
+          <FileItem key={file.id} file={file} mutate={mutate} />
         ))}
       </div>
     </>
@@ -61,7 +62,7 @@ function FolderItem({ folder }: { folder: FolderInfo }) {
   )
 }
 
-function FileItem({ file }: { file: FileInfo }) {
+function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
   const fileIcon = getFileIcon(file.suffix)
   const alert = useAlert()
   return (
@@ -90,7 +91,7 @@ function FileItem({ file }: { file: FileInfo }) {
                 title: '删除',
                 description: '确认删除文件' + file.name + '？',
                 onConfirm() {
-                  console.log(file.id)
+                  deleteFiles([file.id]).then(() => mutate())
                 },
                 warning: true
               })

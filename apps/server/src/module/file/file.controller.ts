@@ -5,12 +5,14 @@ import {
   UseGuards,
   Query,
   Get,
-  Param
+  Param,
+  Delete
 } from '@nestjs/common'
 import { FileService } from './file.service'
 import { CreateFileDto, CreateFolderDto } from './dto/create-file.dto'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
+import { DeleteFilesDto } from './dto/update-file.dto'
 
 @UseGuards(AuthGuard)
 @Controller('file')
@@ -58,5 +60,10 @@ export class FileController {
   @Get('check/:hash')
   async checkHash(@Param('hash') hash: string) {
     return await this.fileService.checkHash(hash)
+  }
+
+  @Delete()
+  async deleteFiles(@UserId() userId: string, @Body() { ids }: DeleteFilesDto) {
+    return await this.fileService.deleteFiles(userId, ids)
   }
 }
