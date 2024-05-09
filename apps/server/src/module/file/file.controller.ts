@@ -66,4 +66,12 @@ export class FileController {
   async deleteFiles(@UserId() userId: string, @Body() { ids }: DeleteFilesDto) {
     return await this.fileService.deleteFiles(userId, ids)
   }
+
+  @Delete('folder')
+  async deleteFolders(
+    @UserId() userId: string,
+    @Body() { ids }: DeleteFilesDto
+  ) {
+    return await this.fileService.deleteFolders(userId, ids)
+  }
 }

@@ -84,23 +84,52 @@ export class FileRepository {
     })
   }
 
-  // async deleteFiles(userId: string, fileIds: string[]) {
-  //   return this.prisma.file.deleteMany({
-  //     where: {
-  //       userId,
-  //       id: {
-  //         in: fileIds
-  //       }
-  //     }
-  //   })
-  // }
-
-  async deleteMany(userId: string, fileIds: string[]) {
+  async deleteFiles(userId: string, fileIds: string[]) {
     return this.prisma.file.deleteMany({
       where: {
         userId,
         id: {
           in: fileIds
+        },
+        isFolder: false
+      }
+    })
+  }
+
+  async deleteFolders(userId: string, folderIds: string[]) {
+    const pathAndName = await this.prisma.file.findMany({
+      where: {
+        userId,
+        id: {
+          in: folderIds
+        },
+        isFolder: true
+      },
+      select: {
+        path: true,
+        name: true
+      }
+    })
+
+    const folderPath = new Set<string>()
+    pathAndName.forEach(({ path, name }) => {
+      folderPath.add(`${path}/${name}`)
+    })
+    for (const path of folderPath) {
+      await this.prisma.file.deleteMany({
+        where: {
+          userId,
+          path: {
+            startsWith: path
+          }
+        }
+      })
+    }
+    await this.prisma.file.deleteMany({
+      where: {
+        userId,
+        id: {
+          in: folderIds
         }
       }
     })

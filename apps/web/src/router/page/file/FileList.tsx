@@ -10,7 +10,7 @@ import { FileInfo, FolderInfo } from '@/type'
 import { getFileIcon } from '@/lib/file'
 import { useNavigate } from 'react-router-dom'
 import useAlert from '@/components/alert/useAlert'
-import { deleteFiles } from '@/lib/api/file'
+import { deleteFiles, deleteFolders } from '@/lib/api/file'
 
 export default function FileList({ path }: { path: string }) {
   const navigate = useNavigate()
@@ -21,7 +21,7 @@ export default function FileList({ path }: { path: string }) {
     <>
       <div className="grid grid-cols-4 sm:grid-cols-7 md:grid-cols-6 lg:grid-cols-9 gap-3 p-2 place-self-center">
         {files.folders.map(folder => (
-          <FolderItem key={folder.id} folder={folder} />
+          <FolderItem key={folder.id} folder={folder} mutate={mutate} />
         ))}
 
         {files.files.map(file => (
@@ -32,8 +32,15 @@ export default function FileList({ path }: { path: string }) {
   )
 }
 
-function FolderItem({ folder }: { folder: FolderInfo }) {
+function FolderItem({
+  folder,
+  mutate
+}: {
+  folder: FolderInfo
+  mutate: () => void
+}) {
   const navigate = useNavigate()
+  const alert = useAlert()
   return (
     <div className="place-self-center">
       <ContextMenu key={folder.id}>
@@ -55,7 +62,20 @@ function FolderItem({ folder }: { folder: FolderInfo }) {
           <ContextMenuItem>重命名</ContextMenuItem>
           <ContextMenuItem>移动到</ContextMenuItem>
           <ContextMenuItem>复制</ContextMenuItem>
-          <ContextMenuItem>删除</ContextMenuItem>
+          <ContextMenuItem
+            onClick={() =>
+              alert({
+                title: '删除',
+                description: `确认删除文件夹 "${folder.name}" 及其子项？`,
+                onConfirm() {
+                  deleteFolders([folder.id]).then(() => mutate())
+                },
+                warning: true
+              })
+            }
+          >
+            删除
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
     </div>
@@ -89,7 +109,7 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
             onClick={() =>
               alert({
                 title: '删除',
-                description: '确认删除文件' + file.name + '？',
+                description: `确认删除文件 ”${file.name}” ？`,
                 onConfirm() {
                   deleteFiles([file.id]).then(() => mutate())
                 },

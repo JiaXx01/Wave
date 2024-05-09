@@ -102,6 +102,10 @@ export class FileService {
   }
 
   async deleteFiles(userId: string, fileIds: string[]) {
-    return this.file.deleteMany(userId, fileIds)
+    return this.file.deleteFiles(userId, fileIds)
+  }
+
+  async deleteFolders(userId: string, folderIds: string[]) {
+    return this.file.deleteFolders(userId, folderIds)
   }
 }

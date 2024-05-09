@@ -60,3 +60,9 @@ export const deleteFiles = async (ids: string[]) => {
     data: { ids }
   })
 }
+
+export const deleteFolders = async (ids: string[]) => {
+  return http.delete('/file/folder', {
+    data: { ids }
+  })
+}
