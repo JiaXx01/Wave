@@ -1,7 +1,7 @@
+import { Button } from '@/components/ui/button'
 import useAlertStore from './alertStore'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -13,8 +13,15 @@ import {
 export default function Alerter() {
   const open = useAlertStore(state => state.open)
   const setOpen = useAlertStore(state => state.setOpen)
-  const { title, description, confirmText, cancelText, onConfirm, onCancel } =
-    useAlertStore(state => state.alert)
+  const {
+    title,
+    description,
+    confirmText,
+    cancelText,
+    onConfirm,
+    onCancel,
+    warning
+  } = useAlertStore(state => state.alert)
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
@@ -26,9 +33,15 @@ export default function Alerter() {
           <AlertDialogCancel onClick={onCancel}>
             {cancelText || '取消'}
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
+          <Button
+            variant={warning ? 'destructive' : undefined}
+            onClick={() => {
+              setOpen(false)
+              onConfirm?.()
+            }}
+          >
             {confirmText || '确认'}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

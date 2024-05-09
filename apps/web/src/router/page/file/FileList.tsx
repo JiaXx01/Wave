@@ -91,7 +91,8 @@ function FileItem({ file }: { file: FileInfo }) {
                 description: '确认删除文件' + file.name + '？',
                 onConfirm() {
                   console.log(file.id)
-                }
+                },
+                warning: true
               })
             }
           >

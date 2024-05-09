@@ -3,10 +3,11 @@ import { create } from 'zustand'
 export type Alert = {
   title: string
   description: string
-  onConfirm?: (arg: unknown) => unknown
+  onConfirm?: () => void
   confirmText?: string
-  onCancel?: (arg: unknown) => unknown
+  onCancel?: () => void
   cancelText?: string
+  warning?: boolean
 }
 
 interface AlertState {
