@@ -16,3 +16,7 @@ export class UpdateContentDto {
   })
   content: any
 }
+
+export class DeleteNoteDto {
+  ids: string[]
+}

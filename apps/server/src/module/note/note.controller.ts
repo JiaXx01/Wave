@@ -6,13 +6,16 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards
 } from '@nestjs/common'
 import { NoteService } from './note.service'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
-import { UpdateContentDto, UpdateTitleDto } from './dto/update-note.dto'
+import {
+  DeleteNoteDto,
+  UpdateContentDto,
+  UpdateTitleDto
+} from './dto/update-note.dto'
 
 type ParamId = {
   id: string
@@ -57,9 +60,8 @@ export class NoteController {
   }
 
   @Delete()
-  async deleteNotes(@UserId() userId: string, @Query('ids') ids: string) {
-    const noteIds = JSON.parse(ids)
-    const res = await this.noteService.deleteNotes(userId, noteIds)
+  async deleteNotes(@UserId() userId: string, @Body() { ids }: DeleteNoteDto) {
+    const res = await this.noteService.deleteNotes(userId, ids)
     return {
       message: '删除成功',
       res
