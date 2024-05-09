@@ -4,6 +4,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
 import { FileInfo, FolderInfo } from '@/type'
@@ -62,7 +63,9 @@ function FolderItem({
           <ContextMenuItem>重命名</ContextMenuItem>
           <ContextMenuItem>移动到</ContextMenuItem>
           <ContextMenuItem>复制</ContextMenuItem>
+          <ContextMenuSeparator />
           <ContextMenuItem
+            className="text-red-500 focus:text-red-500"
             onClick={() =>
               alert({
                 title: '删除',
@@ -105,7 +108,9 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
           <ContextMenuItem>重命名</ContextMenuItem>
           <ContextMenuItem>移动到</ContextMenuItem>
           <ContextMenuItem>复制</ContextMenuItem>
+          <ContextMenuSeparator />
           <ContextMenuItem
+            className="text-red-500 focus:text-red-500"
             onClick={() =>
               alert({
                 title: '删除',
