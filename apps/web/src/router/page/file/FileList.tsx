@@ -9,22 +9,25 @@ import {
 import { FileInfo, FolderInfo } from '@/type'
 import { getFileIcon } from '@/lib/file'
 import { useNavigate } from 'react-router-dom'
+import useAlert from '@/components/alert/useAlert'
 
 export default function FileList({ path }: { path: string }) {
   const navigate = useNavigate()
   const { files, isLoading } = useFiles(path)
   if (isLoading || !files) return null
-  if (!files) return navigate('/file', { replace: true })
+  if (!files) navigate('/file', { replace: true })
   return (
-    <div className="grid grid-cols-4 sm:grid-cols-7 md:grid-cols-6 lg:grid-cols-9 gap-3 p-2 place-self-center">
-      {files.folders.map(folder => (
-        <FolderItem key={folder.id} folder={folder} />
-      ))}
+    <>
+      <div className="grid grid-cols-4 sm:grid-cols-7 md:grid-cols-6 lg:grid-cols-9 gap-3 p-2 place-self-center">
+        {files.folders.map(folder => (
+          <FolderItem key={folder.id} folder={folder} />
+        ))}
 
-      {files.files.map(file => (
-        <FileItem key={file.id} file={file} />
-      ))}
-    </div>
+        {files.files.map(file => (
+          <FileItem key={file.id} file={file} />
+        ))}
+      </div>
+    </>
   )
 }
 
@@ -60,6 +63,7 @@ function FolderItem({ folder }: { folder: FolderInfo }) {
 
 function FileItem({ file }: { file: FileInfo }) {
   const fileIcon = getFileIcon(file.suffix)
+  const alert = useAlert()
   return (
     <div className="place-self-center">
       <ContextMenu key={file.id}>
@@ -80,7 +84,19 @@ function FileItem({ file }: { file: FileInfo }) {
           <ContextMenuItem>重命名</ContextMenuItem>
           <ContextMenuItem>移动到</ContextMenuItem>
           <ContextMenuItem>复制</ContextMenuItem>
-          <ContextMenuItem>删除</ContextMenuItem>
+          <ContextMenuItem
+            onClick={() =>
+              alert({
+                title: '删除',
+                description: '确认删除文件' + file.name + '？',
+                onConfirm() {
+                  console.log(file.id)
+                }
+              })
+            }
+          >
+            删除
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
     </div>

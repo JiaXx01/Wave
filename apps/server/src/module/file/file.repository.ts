@@ -83,4 +83,15 @@ export class FileRepository {
       take: take ? take : undefined
     })
   }
+
+  async deleteFiles(userId: string, fileIds: string[]) {
+    return this.prisma.file.deleteMany({
+      where: {
+        userId,
+        id: {
+          in: fileIds
+        }
+      }
+    })
+  }
 }
