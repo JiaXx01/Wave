@@ -25,10 +25,9 @@ import {
   XIcon
 } from 'lucide-react'
 import { NoteInfo } from '@/type'
-import { useToast } from '@/components/ui/use-toast'
-import { ToastAction } from '@/components/ui/toast'
 import { deleteNotes } from '@/lib/api/note'
 import { useNavigate } from 'react-router-dom'
+import useAlert from '@/components/alert/useAlert'
 
 type SortField = 'createTime' | 'updateTime'
 type SortOrder = boolean | undefined
@@ -46,7 +45,7 @@ export default function NoteList({
   mutate: () => void
 }) {
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const alert = useAlert()
 
   const NOTE_ACTIONS = {
     open(id: string) {
@@ -270,18 +269,13 @@ export default function NoteList({
                       <DropdownMenuItem
                         className="text-red-500 focus:text-red-500"
                         onClick={() => {
-                          toast({
-                            variant: 'destructive',
-                            title: `删除笔记 —— ${note.title}`,
-                            description: '删除后无法恢复！',
-                            action: (
-                              <ToastAction
-                                altText="Delete"
-                                onClick={() => NOTE_ACTIONS.delete([note.id])}
-                              >
-                                删除
-                              </ToastAction>
-                            )
+                          alert({
+                            title: `删除`,
+                            description: `确认删除笔记 “${note.title}” ？`,
+                            onConfirm() {
+                              NOTE_ACTIONS.delete([note.id])
+                            },
+                            warning: true
                           })
                         }}
                       >
@@ -310,18 +304,13 @@ export default function NoteList({
                   onClick={() => {
                     const selectedIds = Object.keys(selections)
                     if (selectedIds.length === 0) return
-                    toast({
-                      variant: 'destructive',
-                      title: `删除选中的${selectedIds.length}篇笔记`,
-                      description: '删除后无法恢复！',
-                      action: (
-                        <ToastAction
-                          altText="Delete"
-                          onClick={() => NOTE_ACTIONS.delete(selectedIds)}
-                        >
-                          删除
-                        </ToastAction>
-                      )
+                    alert({
+                      title: '删除',
+                      description: `确认选中的${selectedIds.length}篇笔记`,
+                      onConfirm() {
+                        NOTE_ACTIONS.delete(selectedIds)
+                      },
+                      warning: true
                     })
                   }}
                 >
