@@ -66,3 +66,7 @@ export const deleteFolders = async (ids: string[]) => {
     data: { ids }
   })
 }
+
+export const renameFile = async (id: string, name: string) => {
+  return http.put(`/file/${id}/name`, { name }).then(res => res.data)
+}

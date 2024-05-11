@@ -39,7 +39,7 @@ model File {
   id       String  @id @default(cuid())
   name     String
   isFolder Boolean // 是否是文件夹
-  size     Int? // 文件大小
+  size     Int?    // 文件大小
   type     String? // 文件类型 Content-Type
   suffix   String? // 文件后缀名
   hash     String? // 文件哈希

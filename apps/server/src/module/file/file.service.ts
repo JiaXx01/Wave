@@ -106,4 +106,8 @@ export class FileService {
   async deleteFolders(userId: string, folderIds: string[]) {
     return this.file.deleteFolders(userId, folderIds)
   }
+
+  async rename(userId: string, fileId: string, name: string) {
+    return this.file.rename(userId, fileId, name)
+  }
 }

@@ -160,4 +160,16 @@ export class FileRepository {
       await this.deleteFolderAndChildren(userId, folderId)
     }
   }
+
+  async rename(userId: string, fileId: string, name: string) {
+    return this.prisma.file.update({
+      where: {
+        id: fileId,
+        userId
+      },
+      data: {
+        name
+      }
+    })
+  }
 }

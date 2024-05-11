@@ -6,6 +6,19 @@ type FileState = {
   folderStack: { id: string; name: string }[]
   back: (id?: string | null) => void
   open: (id: string, name: string) => void
+
+  renameState: {
+    open: boolean
+    id?: string
+    name?: string
+    isFolder?: boolean
+  }
+  openRename: (renameInfo: {
+    id: string
+    name: string
+    isFolder: boolean
+  }) => void
+  closeRename: () => void
 }
 
 const useFileStoreBase = create<FileState>()(
@@ -25,6 +38,21 @@ const useFileStoreBase = create<FileState>()(
     open: (id, name) =>
       set(state => {
         state.folderStack.push({ id, name })
+      }),
+
+    renameState: {
+      open: false
+    },
+    openRename: renameInfo =>
+      set(state => {
+        state.renameState = {
+          open: true,
+          ...renameInfo
+        }
+      }),
+    closeRename: () =>
+      set(state => {
+        state.renameState = { open: false }
       })
   }))
 )

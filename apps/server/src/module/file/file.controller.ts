@@ -6,13 +6,14 @@ import {
   Query,
   Get,
   Param,
-  Delete
+  Delete,
+  Put
 } from '@nestjs/common'
 import { FileService } from './file.service'
 import { CreateFileDto, CreateFolderDto } from './dto/create-file.dto'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
-import { DeleteFilesDto } from './dto/update-file.dto'
+import { DeleteFilesDto, RenameFileDto } from './dto/update-file.dto'
 
 @UseGuards(AuthGuard)
 @Controller('file')
@@ -73,5 +74,14 @@ export class FileController {
     @Body() { ids }: DeleteFilesDto
   ) {
     return await this.fileService.deleteFolders(userId, ids)
+  }
+
+  @Put(':id/name')
+  async rename(
+    @UserId() userId: string,
+    @Param('id') id: string,
+    @Body() { name }: RenameFileDto
+  ) {
+    this.fileService.rename(userId, id, name)
   }
 }
