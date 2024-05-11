@@ -1,37 +1,53 @@
 import { Fragment } from 'react'
-import { Link, useLocation } from 'react-router-dom'
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import FileList from './FileList'
+import useFileStore from './fileStore'
 export default function Files() {
-  const { pathname } = useLocation()
-  const path = decodeURIComponent(pathname)
-  const folders = path.slice(1).split('/')
+  const folderStack = useFileStore.use.folderStack()
+  const back = useFileStore.use.back()
   return (
-    <div className="px-2">
-      {folders.length > 1 && (
-        <ScrollArea className="w-page">
+    <div className="w-page px-2">
+      <ScrollArea className="h-7 w-full">
+        {folderStack.length > 0 && (
           <Breadcrumb>
-            <BreadcrumbList>
-              {folders.map((folder, index, breadcrumbs) => {
-                const length = breadcrumbs.length
-                const path = '/' + breadcrumbs.slice(0, index + 1).join('/')
+            <BreadcrumbList className="flex-nowrap">
+              <BreadcrumbItem>
+                <button
+                  className="text-nowrap"
+                  onClick={() => {
+                    back(null)
+                  }}
+                >
+                  我的文件
+                </button>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              {folderStack.map(({ id, name }, index, folderStack) => {
+                const length = folderStack.length
+
                 return (
                   <Fragment key={index}>
                     {index === length - 1 ? (
-                      <BreadcrumbPage>{folder}</BreadcrumbPage>
+                      <BreadcrumbPage className="text-nowrap">
+                        {name}
+                      </BreadcrumbPage>
                     ) : (
                       <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                          <Link to={path}>{folder}</Link>
-                        </BreadcrumbLink>
+                        <button
+                          className="text-nowrap"
+                          onClick={() => {
+                            back(id)
+                          }}
+                        >
+                          {name}
+                        </button>
                       </BreadcrumbItem>
                     )}
                     {index < length - 1 && <BreadcrumbSeparator />}
@@ -40,10 +56,11 @@ export default function Files() {
               })}
             </BreadcrumbList>
           </Breadcrumb>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      )}
-      <FileList path={path} />
+        )}
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+
+      <FileList />
     </div>
   )
 }

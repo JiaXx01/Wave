@@ -58,25 +58,23 @@ export class FileService {
     return await this.file.createFile(userId, fileInfo)
   }
 
-  async createFolder(userId: string, name: string, path?: string) {
-    return this.file.createFolder(userId, name, path)
+  async createFolder(userId: string, name: string, parentId?: string) {
+    return this.file.createFolder(userId, name, parentId)
   }
 
-  async findFiles(userId: string, path: string, skip?: number, take?: number) {
-    if (path !== '/file') {
-      const paths = path.split('/')
-      const folder = await this.file.findFolderByPath(
-        userId,
-        paths.slice(0, -1).join('/'),
-        paths.at(-1) as string
-      )
-      if (!folder) {
-        throw new HttpException('文件夹不存在', HttpStatus.NOT_FOUND)
-      }
+  async findFiles(
+    userId: string,
+    folderId?: string,
+    skip?: number,
+    take?: number
+  ) {
+    try {
+      const folders = await this.file.findFolders(userId, folderId, skip, take)
+      const files = await this.file.findFiles(userId, folderId, skip, take)
+      return { folders, files }
+    } catch (err) {
+      throw new HttpException('文件夹不存在', HttpStatus.NOT_FOUND)
     }
-    const folders = await this.file.findFolders(userId, path, skip, take)
-    const files = await this.file.findFiles(userId, path, skip, take)
-    return { folders, files }
   }
 
   async checkHash(hash: string) {

@@ -8,7 +8,7 @@ export type FileInfo = {
 
 export type CreateFileParams = {
   name: string
-  path: string
+  parentId?: string
   type: string
   suffix: string | null
   hash: string

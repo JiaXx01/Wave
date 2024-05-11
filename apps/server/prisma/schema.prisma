@@ -36,18 +36,19 @@ model Note {
 }
 
 model File {
-  id         String   @id @default(cuid())
-  name       String
-  path       String // 文件所在路径
-  isFolder   Boolean // 是否是文件夹
-  size       Int? // 文件大小
-  type       String? // 文件类型 Content-Type
-  suffix     String? // 文件后缀名
-  hash       String? // 文件哈希
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  uploadTime DateTime @default(now())
+  id       String  @id @default(cuid())
+  name     String
+  isFolder Boolean // 是否是文件夹
+  size     Int? // 文件大小
+  type     String? // 文件类型 Content-Type
+  suffix   String? // 文件后缀名
+  hash     String? // 文件哈希
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
 
-  @@index([userId, path])
-  @@index([userId, hash])
+  parentId String?
+  parent   File?   @relation("ParentChildren", fields: [parentId], references: [id])
+  children File[]  @relation("ParentChildren")
+
+  uploadTime DateTime @default(now())
 }

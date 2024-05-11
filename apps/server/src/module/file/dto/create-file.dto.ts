@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator'
+import { IsNotEmpty, MaxLength } from 'class-validator'
 
 export class CreateFileDto {
   @IsNotEmpty({
@@ -6,14 +6,8 @@ export class CreateFileDto {
   })
   name: string
 
-  @IsNotEmpty({
-    message: '文件path不能为空'
-  })
-  path: string
+  parentId?: string
 
-  // @IsNotEmpty({
-  //   message: '文件mime-type类型不能为空'
-  // })
   type?: string
 
   suffix?: string
@@ -33,7 +27,10 @@ export class CreateFolderDto {
   @IsNotEmpty({
     message: '文件夹名称不能为空'
   })
+  @MaxLength(20, {
+    message: '文件夹名称不超过20个字符'
+  })
   name: string
 
-  path: string
+  parentId?: string
 }

@@ -27,19 +27,19 @@ export class FileController {
   @Post('folder')
   async createFolder(
     @UserId() userId: string,
-    @Body() { name, path }: CreateFolderDto
+    @Body() { name, parentId }: CreateFolderDto
   ) {
-    return await this.fileService.createFolder(userId, name, path)
+    return await this.fileService.createFolder(userId, name, parentId)
   }
 
   @Get()
   async findFiles(
     @UserId() userId: string,
-    @Query('path') path: string,
+    @Query('folderId') folderId?: string,
     @Query('skip') skip?: number,
     @Query('take') take?: number
   ) {
-    return await this.fileService.findFiles(userId, path, skip, take)
+    return await this.fileService.findFiles(userId, folderId, skip, take)
   }
 
   @Get('presigned-url')

@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { FolderPlus, FolderUp } from 'lucide-react'
-import { Outlet, useLocation } from 'react-router-dom'
 import {
   Dialog,
   DialogContent,
@@ -16,36 +15,40 @@ import { ChangeEventHandler, useEffect, useRef, useState } from 'react'
 import { createFolder } from '@/lib/api/file'
 import { useFiles } from '@/hooks/swr/file'
 import { uploadFile } from '@/lib/file'
+import Files from './Files'
+import useFileStore from './fileStore'
 
 export default function FileLayout() {
-  const { pathname } = useLocation()
-  const path = decodeURIComponent(pathname)
-  const folders = path.slice(1).split('/')
-  const { mutate } = useFiles(path)
+  const folderStack = useFileStore.use.folderStack()
+  const curFolder = folderStack.at(-1)
+  const { mutate } = useFiles(curFolder?.id)
   return (
     <div className="w-page flex flex-col">
       <header className="h-header flex items-center justify-between gap-2 p-2">
         <div className="text-lg flex-1 overflow-hidden text-ellipsis">
-          {folders.at(-1)}
+          {curFolder?.name || '我的文件'}
         </div>
+
         <div>
           <CreateFolder mutate={mutate} />
-          <UploadFile path={path} mutate={mutate} />
+          <UploadFile mutate={mutate} />
         </div>
       </header>
       <ScrollArea className="flex-1">
-        <Outlet />
+        <Files />
       </ScrollArea>
     </div>
   )
 }
 
-function UploadFile({ path, mutate }: { path: string; mutate: () => void }) {
+function UploadFile({ mutate }: { mutate: () => void }) {
+  const folderStack = useFileStore.use.folderStack()
+  const curFolder = folderStack.at(-1)
   const uploadRef = useRef<HTMLInputElement>(null)
   const onUpload: ChangeEventHandler<HTMLInputElement> = async e => {
     const file = e.target.files![0]
     e.target.value = ''
-    await uploadFile(file, path)
+    await uploadFile(file, curFolder?.id)
     mutate()
   }
   return (
@@ -66,12 +69,12 @@ function UploadFile({ path, mutate }: { path: string; mutate: () => void }) {
 }
 
 function CreateFolder({ mutate }: { mutate: () => void }) {
-  const { pathname } = useLocation()
+  const folderStack = useFileStore(state => state.folderStack)
+  const curFolder = folderStack.at(-1)
   const [name, setName] = useState('')
   const onCreateFolder = () => {
     if (!name) return
-    const path = decodeURIComponent(pathname)
-    createFolder(name, path).then(() => {
+    createFolder(name, curFolder?.id).then(() => {
       mutate()
       setOpen(false)
     })
