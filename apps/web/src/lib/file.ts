@@ -68,7 +68,7 @@ const sliceFile = async (file: File): Promise<SliceFileResult> => {
   })
 }
 
-export const uploadFile = async (file: File, path: string) => {
+export const uploadFile = async (file: File, parentId?: string) => {
   if (file.size <= CHUNK_SIZE) {
     const hash = await calculateHash(file)
     const existed = await checkFileHash(hash)
@@ -82,7 +82,7 @@ export const uploadFile = async (file: File, path: string) => {
     await createFile({
       name: file.name,
       type: file.type,
-      path,
+      parentId,
       hash,
       suffix: mime.getExtension(file.type),
       size: file.size
@@ -107,7 +107,7 @@ export const uploadFile = async (file: File, path: string) => {
     await mergeChunks({
       name: file.name,
       type: file.type,
-      path,
+      parentId,
       hash,
       suffix: mime.getExtension(file.type),
       size: file.size

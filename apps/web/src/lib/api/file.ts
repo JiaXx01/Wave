@@ -3,12 +3,12 @@ import http from './http'
 
 export const createFolder = async (
   name: string,
-  path: string
+  parentId?: string
 ): Promise<FolderInfo> => {
   return http
     .post('/file/folder', {
       name,
-      path
+      parentId
     })
     .then(res => res.data)
 }
@@ -18,12 +18,12 @@ export const createFile = async (fileInfo: CreateFileParams) => {
 }
 
 export const findFiles = async (
-  path: string
+  folderId?: string
 ): Promise<{ files: FileInfo[]; folders: FolderInfo[] }> => {
   return http
     .get('/file', {
       params: {
-        path
+        folderId
       }
     })
     .then(res => res.data)

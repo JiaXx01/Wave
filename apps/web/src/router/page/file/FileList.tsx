@@ -12,10 +12,12 @@ import { getFileIcon } from '@/lib/file'
 import { useNavigate } from 'react-router-dom'
 import useAlert from '@/components/alert/useAlert'
 import { deleteFiles, deleteFolders } from '@/lib/api/file'
+import useFileStore from './fileStore'
 
-export default function FileList({ path }: { path: string }) {
+export default function FileList() {
   const navigate = useNavigate()
-  const { files, isLoading, mutate } = useFiles(path)
+  const folderStack = useFileStore.use.folderStack()
+  const { files, isLoading, mutate } = useFiles(folderStack.at(-1)?.id)
   if (isLoading || !files) return null
   if (!files) navigate('/file', { replace: true })
   return (
@@ -40,7 +42,7 @@ function FolderItem({
   folder: FolderInfo
   mutate: () => void
 }) {
-  const navigate = useNavigate()
+  const open = useFileStore.use.open()
   const alert = useAlert()
   return (
     <div className="place-self-center">
@@ -49,7 +51,7 @@ function FolderItem({
           <div
             key={folder.id}
             className="w-[90px] flex flex-col items-center cursor-pointer"
-            onClick={() => navigate(folder.path + '/' + folder.name)}
+            onClick={() => open(folder.id, folder.name)}
           >
             <div className="h-[75px] w-[75px]">
               <img src={folderPng} />

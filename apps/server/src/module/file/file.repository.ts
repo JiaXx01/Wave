@@ -4,14 +4,12 @@ import { PrismaService } from 'src/prisma/prisma.service'
 const FOLDER_SELECT = {
   id: true,
   name: true,
-  path: true,
   userId: true,
   uploadTime: true
 }
 
 const FILE_SELECT = {
   ...FOLDER_SELECT,
-  url: true,
   size: true,
   type: true,
   suffix: true
@@ -22,9 +20,9 @@ export class FileRepository {
   @Inject()
   private prisma: PrismaService
 
-  async createFolder(userId: string, name: string, path: string = '/file') {
+  async createFolder(userId: string, name: string, parentId?: string) {
     return this.prisma.file.create({
-      data: { userId, name, isFolder: true, path },
+      data: { userId, name, isFolder: true, parentId },
       select: FOLDER_SELECT
     })
   }
@@ -33,7 +31,7 @@ export class FileRepository {
     userId: string,
     fileInfo: {
       name: string
-      path: string
+      parentId?: string
       type?: string
       suffix?: string
       hash: string
@@ -45,43 +43,72 @@ export class FileRepository {
     })
   }
 
-  async findFolderByPath(userId: string, path: string, name: string) {
-    return this.prisma.file.findFirst({
-      where: {
-        userId,
-        path,
-        name,
-        isFolder: true
-      }
-    })
-  }
-
   async findFolders(
     userId: string,
-    path: string = '/file',
+    folderId?: string,
     skip?: number,
     take?: number
   ) {
-    return this.prisma.file.findMany({
-      where: { userId, path, isFolder: true },
-      select: FOLDER_SELECT,
-      skip: skip ? skip : undefined,
-      take: take ? take : undefined
-    })
+    if (folderId) {
+      return (
+        await this.prisma.file.findUniqueOrThrow({
+          where: {
+            id: folderId,
+            userId,
+            isFolder: true
+          },
+          select: {
+            children: {
+              where: { isFolder: true },
+              select: FOLDER_SELECT,
+              skip: skip ? skip : undefined,
+              take: take ? take : undefined
+            }
+          }
+        })
+      )?.children
+    } else {
+      return this.prisma.file.findMany({
+        where: { userId, parentId: null, isFolder: true },
+        select: FOLDER_SELECT,
+        skip: skip ? skip : undefined,
+        take: take ? take : undefined
+      })
+    }
   }
 
   async findFiles(
     userId: string,
-    path: string = '/file',
+    folderId?: string,
     skip?: number,
     take?: number
   ) {
-    return this.prisma.file.findMany({
-      where: { userId, path, isFolder: false },
-      select: FILE_SELECT,
-      skip: skip ? skip : undefined,
-      take: take ? take : undefined
-    })
+    if (folderId) {
+      return (
+        await this.prisma.file.findUniqueOrThrow({
+          where: { id: folderId, userId, isFolder: true },
+          select: {
+            children: {
+              where: { isFolder: false },
+              select: FILE_SELECT,
+              skip: skip ? skip : undefined,
+              take: take ? take : undefined
+            }
+          }
+        })
+      )?.children
+    } else {
+      return this.prisma.file.findMany({
+        where: {
+          userId,
+          isFolder: false,
+          parentId: null
+        },
+        select: FILE_SELECT,
+        skip: skip ? skip : undefined,
+        take: take ? take : undefined
+      })
+    }
   }
 
   async deleteFiles(userId: string, fileIds: string[]) {
@@ -96,42 +123,41 @@ export class FileRepository {
     })
   }
 
-  async deleteFolders(userId: string, folderIds: string[]) {
-    const pathAndName = await this.prisma.file.findMany({
+  private async deleteFolderAndChildren(userId: string, folderId: string) {
+    await this.prisma.file.findUniqueOrThrow({
       where: {
-        userId,
-        id: {
-          in: folderIds
-        },
-        isFolder: true
-      },
-      select: {
-        path: true,
-        name: true
+        id: folderId,
+        userId: userId
       }
     })
 
-    const folderPath = new Set<string>()
-    pathAndName.forEach(({ path, name }) => {
-      folderPath.add(`${path}/${name}`)
+    const files = await this.prisma.file.findMany({
+      where: {
+        parentId: folderId,
+        isFolder: false
+      }
     })
-    for (const path of folderPath) {
-      await this.prisma.file.deleteMany({
-        where: {
-          userId,
-          path: {
-            startsWith: path
-          }
-        }
-      })
-    }
     await this.prisma.file.deleteMany({
       where: {
-        userId,
         id: {
-          in: folderIds
+          in: files.map((file) => file.id)
         }
       }
     })
+
+    const folders = await this.prisma.file.findMany({
+      where: { parentId: folderId }
+    })
+
+    for (const folder of folders) {
+      await this.deleteFolderAndChildren(userId, folder.id)
+    }
+    await this.prisma.file.delete({ where: { id: folderId } })
+  }
+
+  async deleteFolders(userId: string, folderIds: string[]) {
+    for (const folderId of folderIds) {
+      await this.deleteFolderAndChildren(userId, folderId)
+    }
   }
 }
