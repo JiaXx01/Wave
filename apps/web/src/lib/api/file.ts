@@ -1,4 +1,9 @@
-import { CreateFileParams, FileInfo, FolderInfo } from '@/type'
+import {
+  CreateFileParams,
+  FileInfo,
+  FindKeywordResult,
+  FolderInfo
+} from '@/type'
 import http from './http'
 
 export const createFolder = async (
@@ -69,4 +74,14 @@ export const deleteFolders = async (ids: string[]) => {
 
 export const renameFile = async (id: string, name: string) => {
   return http.put(`/file/${id}/name`, { name }).then(res => res.data)
+}
+
+export const findKeyword = async (
+  keyword: string
+): Promise<FindKeywordResult[]> => {
+  return http
+    .get('/file/search', {
+      params: { keyword }
+    })
+    .then(res => res.data)
 }

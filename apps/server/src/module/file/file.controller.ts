@@ -84,4 +84,12 @@ export class FileController {
   ) {
     this.fileService.rename(userId, id, name)
   }
+
+  @Get('search')
+  async searchKeyword(
+    @UserId() userId: string,
+    @Query('keyword') keyword: string
+  ) {
+    return await this.fileService.searchKeyword(userId, keyword)
+  }
 }

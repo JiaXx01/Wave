@@ -172,4 +172,59 @@ export class FileRepository {
       }
     })
   }
+
+  async getFileAncestors(
+    fileId: string,
+    ancestors: { id: string; name: string }[] = []
+  ): Promise<{ id: string; name: string }[]> {
+    const file = await this.prisma.file.findUnique({
+      where: { id: fileId },
+      include: {
+        parent: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    })
+    if (!file || !file.parent) {
+      return ancestors
+    }
+    ancestors.unshift(file.parent)
+    return this.getFileAncestors(file.parent.id, ancestors)
+  }
+
+  async findByKeyword(userId: string, keyword: string) {
+    const files = await this.prisma.file.findMany({
+      where: {
+        userId,
+        name: {
+          contains: keyword
+        },
+        isFolder: false
+      },
+      select: {
+        ...FILE_SELECT
+      }
+    })
+    const result: {
+      id: string
+      name: string
+      size: number | null
+      type: string | null
+      suffix: string | null
+      userId: string
+      uploadTime: Date
+      folderStack: { id: string; name: string }[]
+    }[] = []
+    for (const file of files) {
+      const folderStack = await this.getFileAncestors(file.id)
+      result.push({
+        ...file,
+        folderStack
+      })
+    }
+    return result
+  }
 }

@@ -24,7 +24,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function FileList() {
   const navigate = useNavigate()
@@ -44,6 +44,7 @@ export default function FileList() {
         ))}
       </div>
       <RenameDialog mutate={mutate} />
+      <RemoveDialog mutate={mutate} />
     </>
   )
 }
@@ -57,7 +58,21 @@ function FolderItem({
 }) {
   const open = useFileStore.use.open()
   const alert = useAlert()
-  const openRename = useFileStore.use.openRename()
+  const openOperation = useFileStore.use.openOperation()
+  const onRename = () => {
+    openOperation('rename', {
+      id: folder.id,
+      name: folder.name,
+      isFolder: true
+    })
+  }
+  const onRemove = () => {
+    openOperation('remove', {
+      id: folder.id,
+      name: folder.name,
+      isFolder: true
+    })
+  }
   return (
     <div className="place-self-center">
       <ContextMenu key={folder.id}>
@@ -76,15 +91,8 @@ function FolderItem({
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem
-            onClick={() =>
-              openRename({ id: folder.id, name: folder.name, isFolder: true })
-            }
-          >
-            重命名
-          </ContextMenuItem>
-          <ContextMenuItem>移动到</ContextMenuItem>
-          <ContextMenuItem>复制</ContextMenuItem>
+          <ContextMenuItem onClick={onRename}>重命名</ContextMenuItem>
+          <ContextMenuItem onClick={onRemove}>移动到</ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
             className="text-red-500 focus:text-red-500"
@@ -110,7 +118,21 @@ function FolderItem({
 function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
   const fileIcon = getFileIcon(file.suffix)
   const alert = useAlert()
-  const openRename = useFileStore.use.openRename()
+  const openOperation = useFileStore.use.openOperation()
+  const onRename = () => {
+    openOperation('rename', {
+      id: file.id,
+      name: file.name,
+      isFolder: false
+    })
+  }
+  const onRemove = () => {
+    openOperation('remove', {
+      id: file.id,
+      name: file.name,
+      isFolder: false
+    })
+  }
   return (
     <div className="place-self-center">
       <ContextMenu key={file.id}>
@@ -128,15 +150,8 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem
-            onClick={() =>
-              openRename({ id: file.id, name: file.name, isFolder: false })
-            }
-          >
-            重命名
-          </ContextMenuItem>
-          <ContextMenuItem>移动到</ContextMenuItem>
-          <ContextMenuItem>复制</ContextMenuItem>
+          <ContextMenuItem onClick={onRename}>重命名</ContextMenuItem>
+          <ContextMenuItem onClick={onRemove}>移动到</ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
             className="text-red-500 focus:text-red-500"
@@ -160,23 +175,71 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
 }
 
 function RenameDialog({ mutate }: { mutate: () => void }) {
-  const { open, id, name, isFolder } = useFileStore.use.renameState()
-  const closeRename = useFileStore.use.closeRename()
+  const { open, id, name, isFolder } = useFileStore.use.rename()
+  const closeOperation = useFileStore.use.closeOperation()
   const [newName, setNewName] = useState('')
+  useEffect(() => {
+    if (!open) setNewName('')
+  }, [open])
   const onRename = () => {
     if (!newName || !id) return
     renameFile(id, newName).then(() => {
       mutate()
-      closeRename()
+      closeOperation('rename')
     })
   }
   return (
-    <Dialog open={open} onOpenChange={closeRename}>
+    <Dialog open={open} onOpenChange={() => closeOperation('rename')}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>重命名</DialogTitle>
           <DialogDescription>
             {`修改${isFolder ? '文件夹' : '文件'} "${name}" 的名称，点击确认应用修改！`}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center justify-between gap-4">
+          <Label htmlFor="rename" className="text-right">
+            新名称
+          </Label>
+          <Input
+            id="rename"
+            className="flex-1"
+            autoComplete="off"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+          />
+        </div>
+        <DialogFooter>
+          <Button onClick={onRename} disabled={!newName}>
+            确认
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function RemoveDialog({ mutate }: { mutate: () => void }) {
+  const { open, id, name, isFolder } = useFileStore.use.remove()
+  const closeOperation = useFileStore.use.closeOperation()
+  const [newName, setNewName] = useState('')
+  useEffect(() => {
+    if (!open) setNewName('')
+  }, [open])
+  const onRename = () => {
+    if (!newName || !id) return
+    renameFile(id, newName).then(() => {
+      mutate()
+      closeOperation('remove')
+    })
+  }
+  return (
+    <Dialog open={open} onOpenChange={() => closeOperation('remove')}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>移动到</DialogTitle>
+          <DialogDescription>
+            {`移动${isFolder ? '文件夹' : '文件'} "${name}" 到指定目录，点击确认应用修改！`}
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center justify-between gap-4">

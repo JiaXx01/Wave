@@ -14,3 +14,14 @@ export type CreateFileParams = {
   hash: string
   size: number
 }
+
+export type FindKeywordResult = {
+  id: string
+  name: string
+  size: number | null
+  type: string | null
+  suffix: string | null
+  userId: string
+  uploadTime: Date
+  folderStack: { id: string; name: string }[]
+}

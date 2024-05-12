@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { FolderPlus, FolderUp } from 'lucide-react'
+import { FileSearch2, FolderPlus, FolderUp } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -12,11 +13,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react'
-import { createFolder } from '@/lib/api/file'
+import { createFolder, findKeyword } from '@/lib/api/file'
 import { useFiles } from '@/hooks/swr/file'
-import { uploadFile } from '@/lib/file'
+import { getFileIcon, uploadFile } from '@/lib/file'
 import Files from './Files'
 import useFileStore from './fileStore'
+import { FindKeywordResult } from '@/type'
 
 export default function FileLayout() {
   const folderStack = useFileStore.use.folderStack()
@@ -29,7 +31,8 @@ export default function FileLayout() {
           {curFolder?.name || '我的文件'}
         </div>
 
-        <div>
+        <div className="flex items-center gap-2">
+          <SearchFile />
           <CreateFolder mutate={mutate} />
           <UploadFile mutate={mutate} />
         </div>
@@ -86,7 +89,7 @@ function CreateFolder({ mutate }: { mutate: () => void }) {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="mr-2">
+        <Button variant="outline">
           <FolderPlus size="16" className="mr-2" />
           新建文件夹
         </Button>
@@ -111,6 +114,73 @@ function CreateFolder({ mutate }: { mutate: () => void }) {
         <DialogFooter>
           <Button onClick={onCreateFolder}>新建</Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function SearchFile() {
+  const [searchWord, setSearchWord] = useState('')
+  const [keyword, setKeyword] = useState('')
+  const [fileList, setFileList] = useState<FindKeywordResult[]>([])
+  const onSearch = () => {
+    if (!searchWord) return
+    findKeyword(searchWord).then(res => {
+      setFileList(res)
+      setKeyword(searchWord)
+    })
+  }
+  const renderFileList = (file: FindKeywordResult) => {
+    const fileIcon = getFileIcon(file.suffix)
+    const filePath = file.folderStack.reduce((path, folder) => {
+      return path + folder.name + '/'
+    }, '')
+    const keywordStartIndex = file.name.search(keyword)
+
+    const filename = (
+      <>
+        {file.name.slice(0, keywordStartIndex)}
+        {<span className="bg-yellow-200">{keyword}</span>}
+        {file.name.slice(keywordStartIndex + keyword.length)}
+      </>
+    )
+    return (
+      <div
+        key={file.id}
+        className="px-2 py-1 font-light hover:bg-accent rounded cursor-pointer flex items-center gap-2"
+      >
+        <img src={fileIcon} className="w-4 h-4" />
+        <span>
+          {filePath}
+          {filename}
+        </span>
+      </div>
+    )
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="p-2">
+          <FileSearch2 size="18" />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>查找文件</DialogTitle>
+          <DialogDescription>输入文件名称，搜索文件</DialogDescription>
+        </DialogHeader>
+        <div className="flex gap-2">
+          <Input
+            value={searchWord}
+            onChange={e => setSearchWord(e.target.value)}
+          />
+          <Button onClick={onSearch}>搜索</Button>
+        </div>
+        <div>
+          {fileList.map(file => {
+            return renderFileList(file)
+          })}
+        </div>
       </DialogContent>
     </Dialog>
   )

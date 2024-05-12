@@ -110,4 +110,8 @@ export class FileService {
   async rename(userId: string, fileId: string, name: string) {
     return this.file.rename(userId, fileId, name)
   }
+
+  async searchKeyword(userId: string, keyword: string) {
+    return this.file.findByKeyword(userId, keyword)
+  }
 }
