@@ -2,7 +2,8 @@ import {
   CreateFileParams,
   FileInfo,
   FindKeywordResult,
-  FolderInfo
+  FolderInfo,
+  FolderTree
 } from '@/type'
 import http from './http'
 
@@ -84,4 +85,12 @@ export const findKeyword = async (
       params: { keyword }
     })
     .then(res => res.data)
+}
+
+export const getFolderTree = async (): Promise<FolderTree[]> => {
+  return http.get('/file/folder-tree').then(res => res.data)
+}
+
+export const removeFile = async (id: string, targetId?: string) => {
+  return http.put(`/file/${id}/remove-to`, { targetId }).then(res => res.data)
 }

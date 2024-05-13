@@ -11,7 +11,13 @@ import { FileInfo, FolderInfo } from '@/type'
 import { getFileIcon } from '@/lib/file'
 import { useNavigate } from 'react-router-dom'
 import useAlert from '@/components/alert/useAlert'
-import { deleteFiles, deleteFolders, renameFile } from '@/lib/api/file'
+import {
+  deleteFiles,
+  deleteFolders,
+  getFolderTree,
+  removeFile,
+  renameFile
+} from '@/lib/api/file'
 import useFileStore from './fileStore'
 import {
   Dialog,
@@ -25,6 +31,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
+import { Tree, TreeItemData } from '@/components/Tree'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function FileList() {
   const navigate = useNavigate()
@@ -56,7 +64,7 @@ function FolderItem({
   folder: FolderInfo
   mutate: () => void
 }) {
-  const open = useFileStore.use.open()
+  const goto = useFileStore.use.goto()
   const alert = useAlert()
   const openOperation = useFileStore.use.openOperation()
   const onRename = () => {
@@ -80,12 +88,12 @@ function FolderItem({
           <div
             key={folder.id}
             className="w-[90px] flex flex-col items-center cursor-pointer"
-            onClick={() => open(folder.id, folder.name)}
+            onClick={() => goto(folder.id, folder.name)}
           >
             <div className="h-[75px] w-[75px]">
               <img src={folderPng} />
             </div>
-            <div className="mt-1 h-8 w-full text-xs text-center line-clamp-2 break-words">
+            <div className="mt-1 h-8 w-full text-xs text-center line-clamp-2 break-words px-1">
               {folder.name}
             </div>
           </div>
@@ -144,7 +152,7 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
             <div className="h-[75px] w-[75px] flex items-center justify-center">
               <img src={fileIcon} className="h-[65px]" />
             </div>
-            <div className="mt-1 h-8 w-full text-xs text-center line-clamp-2 break-words">
+            <div className="mt-1 h-8 w-full text-xs text-center line-clamp-2 break-words px-1">
               {file.name}
             </div>
           </div>
@@ -222,17 +230,32 @@ function RenameDialog({ mutate }: { mutate: () => void }) {
 function RemoveDialog({ mutate }: { mutate: () => void }) {
   const { open, id, name, isFolder } = useFileStore.use.remove()
   const closeOperation = useFileStore.use.closeOperation()
-  const [newName, setNewName] = useState('')
+  const [folderTree, setFolderTree] = useState<TreeItemData[]>([])
+  const [selectedId, setSelectedId] = useState<string | undefined>('root')
   useEffect(() => {
-    if (!open) setNewName('')
+    if (open) {
+      getFolderTree().then(tree =>
+        setFolderTree([
+          {
+            id: 'root',
+            name: '我的文件',
+            children: tree
+          }
+        ])
+      )
+    } else {
+      setSelectedId('root')
+      setFolderTree([])
+    }
   }, [open])
-  const onRename = () => {
-    if (!newName || !id) return
-    renameFile(id, newName).then(() => {
+  const onRemove = () => {
+    if (!selectedId || !id) return
+    removeFile(id, selectedId === 'root' ? undefined : selectedId).then(() => {
       mutate()
       closeOperation('remove')
     })
   }
+
   return (
     <Dialog open={open} onOpenChange={() => closeOperation('remove')}>
       <DialogContent className="sm:max-w-[425px]">
@@ -242,22 +265,18 @@ function RemoveDialog({ mutate }: { mutate: () => void }) {
             {`移动${isFolder ? '文件夹' : '文件'} "${name}" 到指定目录，点击确认应用修改！`}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center justify-between gap-4">
-          <Label htmlFor="rename" className="text-right">
-            新名称
-          </Label>
-          <Input
-            id="rename"
-            className="flex-1"
-            autoComplete="off"
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
+        <ScrollArea className="h-[300px]">
+          <Tree
+            data={folderTree}
+            onSelectChange={item => setSelectedId(item?.id)}
+            initiateSelectedItemId="root"
+            defaultExpandedItemIds={['root']}
+            disableConditions={item => item.id === id}
+            icon={<img src={folderPng} className="h-4 w-4" />}
           />
-        </div>
+        </ScrollArea>
         <DialogFooter>
-          <Button onClick={onRename} disabled={!newName}>
-            确认
-          </Button>
+          <Button onClick={onRemove}>确认</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

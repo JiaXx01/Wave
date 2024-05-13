@@ -15,6 +15,12 @@ const FILE_SELECT = {
   suffix: true
 }
 
+export type FolderTree = {
+  id: string
+  name: string
+  children: FolderTree[]
+}
+
 @Injectable()
 export class FileRepository {
   @Inject()
@@ -226,5 +232,63 @@ export class FileRepository {
       })
     }
     return result
+  }
+
+  async findFolderTree(folderId: string): Promise<FolderTree> {
+    const folder = await this.prisma.file.findUnique({
+      where: { id: folderId, isFolder: true },
+      include: {
+        children: {
+          where: { isFolder: true }
+        }
+      }
+    })
+
+    if (!folder) {
+      throw new Error('未找到文件夹')
+    }
+
+    const children = await Promise.all(
+      folder.children.map(async (child) => await this.findFolderTree(child.id))
+    )
+
+    return {
+      id: folder.id,
+      name: folder.name,
+      children
+    }
+  }
+
+  async getFolderTree(userId: string) {
+    const rootFolders = await this.prisma.file.findMany({
+      where: {
+        userId,
+        parentId: null,
+        isFolder: true
+      }
+    })
+    const folderTree = await Promise.all(
+      rootFolders.map(async (folder) => {
+        return await this.findFolderTree(folder.id)
+      })
+    )
+    return folderTree
+  }
+
+  async remove(userId: string, fileId: string, targetId?: string) {
+    if (targetId) {
+      const folder = await this.prisma.file.findUnique({
+        where: { id: targetId, isFolder: true }
+      })
+      if (!folder) {
+        throw new Error('目标文件夹不存在')
+      }
+    }
+    return this.prisma.file.update({
+      where: { id: fileId, userId },
+      data: {
+        parentId: targetId ? targetId : null
+      }
+    })
   }
 }

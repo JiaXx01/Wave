@@ -25,3 +25,11 @@ export type FindKeywordResult = {
   uploadTime: Date
   folderStack: { id: string; name: string }[]
 }
+
+export type FolderStack = { id: string; name: string }[]
+
+export type FolderTree = {
+  id: string
+  name: string
+  children?: FolderTree[]
+}

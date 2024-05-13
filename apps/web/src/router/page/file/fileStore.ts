@@ -11,10 +11,13 @@ type OperationState = {
 
 type Operation = 'rename' | 'remove'
 
+type FolderStack = { id: string; name: string }[]
+
 type FileState = {
-  folderStack: { id: string; name: string }[]
+  folderStack: FolderStack
   back: (id?: string | null) => void
-  open: (id: string, name: string) => void
+  goto: (id: string, name: string) => void
+  jumpTo: (folderStack: FolderStack) => void
 
   rename: OperationState
   remove: OperationState
@@ -44,9 +47,13 @@ const useFileStoreBase = create<FileState>()(
           state.folderStack.pop()
         }
       }),
-    open: (id, name) =>
+    goto: (id, name) =>
       set(state => {
         state.folderStack.push({ id, name })
+      }),
+    jumpTo: folderStack =>
+      set(state => {
+        state.folderStack = folderStack
       }),
 
     rename: {
@@ -66,17 +73,6 @@ const useFileStoreBase = create<FileState>()(
       set(state => {
         state[operation] = { open: false }
       })
-    // openRename: renameInfo =>
-    //   set(state => {
-    //     state.renameState = {
-    //       open: true,
-    //       ...renameInfo
-    //     }
-    //   }),
-    // closeRename: () =>
-    //   set(state => {
-    //     state.renameState = { open: false }
-    //   })
   }))
 )
 

@@ -13,7 +13,11 @@ import { FileService } from './file.service'
 import { CreateFileDto, CreateFolderDto } from './dto/create-file.dto'
 import { AuthGuard } from 'src/guard/auth.guard'
 import { UserId } from 'src/custom.decorator'
-import { DeleteFilesDto, RenameFileDto } from './dto/update-file.dto'
+import {
+  DeleteFilesDto,
+  RemoveFileDto,
+  RenameFileDto
+} from './dto/update-file.dto'
 
 @UseGuards(AuthGuard)
 @Controller('file')
@@ -91,5 +95,19 @@ export class FileController {
     @Query('keyword') keyword: string
   ) {
     return await this.fileService.searchKeyword(userId, keyword)
+  }
+
+  @Get('folder-tree')
+  async getFolderTree(@UserId() userId: string) {
+    return await this.fileService.getFolderTree(userId)
+  }
+
+  @Put(':id/remove-to')
+  async removeFile(
+    @UserId() userId: string,
+    @Param('id') id: string,
+    @Body() { targetId }: RemoveFileDto
+  ) {
+    return await this.fileService.removeFile(userId, id, targetId)
   }
 }

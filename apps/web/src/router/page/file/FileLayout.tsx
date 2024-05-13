@@ -18,7 +18,7 @@ import { useFiles } from '@/hooks/swr/file'
 import { getFileIcon, uploadFile } from '@/lib/file'
 import Files from './Files'
 import useFileStore from './fileStore'
-import { FindKeywordResult } from '@/type'
+import { FindKeywordResult, FolderStack } from '@/type'
 
 export default function FileLayout() {
   const folderStack = useFileStore.use.folderStack()
@@ -120,6 +120,8 @@ function CreateFolder({ mutate }: { mutate: () => void }) {
 }
 
 function SearchFile() {
+  const jumpTo = useFileStore.use.jumpTo()
+  const [open, setOpen] = useState(false)
   const [searchWord, setSearchWord] = useState('')
   const [keyword, setKeyword] = useState('')
   const [fileList, setFileList] = useState<FindKeywordResult[]>([])
@@ -130,6 +132,15 @@ function SearchFile() {
       setKeyword(searchWord)
     })
   }
+
+  const onJump = (folderStack: FolderStack) => {
+    jumpTo(folderStack)
+    setOpen(false)
+    setSearchWord('')
+    setKeyword('')
+    setFileList([])
+  }
+
   const renderFileList = (file: FindKeywordResult) => {
     const fileIcon = getFileIcon(file.suffix)
     const filePath = file.folderStack.reduce((path, folder) => {
@@ -148,6 +159,7 @@ function SearchFile() {
       <div
         key={file.id}
         className="px-2 py-1 font-light hover:bg-accent rounded cursor-pointer flex items-center gap-2"
+        onClick={() => onJump(file.folderStack)}
       >
         <img src={fileIcon} className="w-4 h-4" />
         <span>
@@ -158,7 +170,7 @@ function SearchFile() {
     )
   }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="p-2">
           <FileSearch2 size="18" />
@@ -176,11 +188,11 @@ function SearchFile() {
           />
           <Button onClick={onSearch}>搜索</Button>
         </div>
-        <div>
+        <ScrollArea className="max-h-[320px]">
           {fileList.map(file => {
             return renderFileList(file)
           })}
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   )

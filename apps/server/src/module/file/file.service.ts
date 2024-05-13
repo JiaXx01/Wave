@@ -114,4 +114,12 @@ export class FileService {
   async searchKeyword(userId: string, keyword: string) {
     return this.file.findByKeyword(userId, keyword)
   }
+
+  async getFolderTree(userId: string) {
+    return this.file.getFolderTree(userId)
+  }
+
+  async removeFile(userId: string, fileId: string, targetId?: string) {
+    return this.file.remove(userId, fileId, targetId)
+  }
 }
