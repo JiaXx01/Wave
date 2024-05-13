@@ -265,16 +265,15 @@ function RemoveDialog({ mutate }: { mutate: () => void }) {
             {`移动${isFolder ? '文件夹' : '文件'} "${name}" 到指定目录，点击确认应用修改！`}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-[300px]">
-          <Tree
-            data={folderTree}
-            onSelectChange={item => setSelectedId(item?.id)}
-            initiateSelectedItemId="root"
-            defaultExpandedItemIds={['root']}
-            disableConditions={item => item.id === id}
-            icon={<img src={folderPng} className="h-4 w-4" />}
-          />
-        </ScrollArea>
+        <Tree
+          className="h-[300px]"
+          data={folderTree}
+          onSelectChange={item => setSelectedId(item?.id)}
+          initiateSelectedItemId="root"
+          defaultExpandedItemIds={['root']}
+          disableConditions={item => item.id === id}
+          icon={<img src={folderPng} className="h-4 w-4" />}
+        />
         <DialogFooter>
           <Button onClick={onRemove}>确认</Button>
         </DialogFooter>

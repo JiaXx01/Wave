@@ -8,6 +8,8 @@ import {
 import { cn } from '@/lib/utils'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { ChevronRight } from 'lucide-react'
+import { ScrollArea, ScrollBar } from './ui/scroll-area'
+import useResizeObserver from 'use-resize-observer'
 
 type TreeItemData = {
   id: string
@@ -48,16 +50,22 @@ const Tree = forwardRef<HTMLDivElement, TreeProps>(
       },
       [onSelectChange]
     )
+    const { ref: refRoot, width, height } = useResizeObserver()
     return (
-      <div className={className}>
-        <TreeItem
-          data={data}
-          ref={ref}
-          handleSelectChange={handleSelectChange}
-          selectedItemId={selectedItemId}
-          expandedItemIds={defaultExpandedItemIds}
-          {...props}
-        />
+      <div ref={refRoot} className={cn('overflow-hidden', className)}>
+        <ScrollArea style={{ width, height }}>
+          <div className={cn('relative')}>
+            <TreeItem
+              data={data}
+              ref={ref}
+              handleSelectChange={handleSelectChange}
+              selectedItemId={selectedItemId}
+              expandedItemIds={defaultExpandedItemIds}
+              {...props}
+            />
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
     )
   }
@@ -207,7 +215,7 @@ const AccordionContent = forwardRef<
     )}
     {...props}
   >
-    <div className="pb-1 pt-0">{children}</div>
+    <div>{children}</div>
   </AccordionPrimitive.Content>
 ))
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
