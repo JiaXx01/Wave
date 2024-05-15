@@ -92,8 +92,7 @@ export class FileService {
       return true
     } catch (err) {
       const chunkHashNoList = await this.getUploadedChunkHashNo(hash)
-      if (chunkHashNoList.length === 0) return false
-      else return chunkHashNoList
+      return chunkHashNoList
     }
   }
 

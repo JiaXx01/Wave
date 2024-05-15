@@ -92,26 +92,44 @@ export const uploadFile = async (file: File, parentId?: string) => {
     /**
      * 根据文件hash判断文件是秒传还是续传还是完整上传
      */
-
-    // 完整上传
-    const uploadList = chunkList.map(async (chunk, index) => {
-      const hashNo = hash + '/' + index
-      return await getChunkUploadUrl(hashNo).then(url => {
-        return fetch(url, {
-          method: 'PUT',
-          body: chunk
+    const hashState = await checkFileHash(hash)
+    if (Array.isArray(hashState)) {
+      const chunkHashMap = hashState.reduce(
+        (pre, cur) => {
+          pre[cur] = true
+          return pre
+        },
+        {} as Record<string, boolean>
+      )
+      const uploadList = chunkList.map(async (chunk, index) => {
+        const hashNo = hash + '/' + index
+        if (chunkHashMap[hashNo]) return
+        return await getChunkUploadUrl(hashNo).then(url => {
+          return fetch(url, {
+            method: 'PUT',
+            body: chunk
+          })
         })
       })
-    })
-    await Promise.all(uploadList)
-    await mergeChunks({
-      name: file.name,
-      type: file.type,
-      parentId,
-      hash,
-      suffix: mime.getExtension(file.type),
-      size: file.size
-    })
+      await Promise.all(uploadList)
+      await mergeChunks({
+        name: file.name,
+        type: file.type,
+        parentId,
+        hash,
+        suffix: mime.getExtension(file.type),
+        size: file.size
+      })
+    } else {
+      await createFile({
+        name: file.name,
+        type: file.type,
+        parentId,
+        hash,
+        suffix: mime.getExtension(file.type),
+        size: file.size
+      })
+    }
   }
 }
 
