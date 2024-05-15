@@ -27,21 +27,6 @@ import { Response } from 'express'
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Get(':id')
-  async getFileContent(
-    @UserId() userId: string,
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response
-  ) {
-    const { file, stream } = await this.fileService.getFileStream(userId, id)
-    res.set({
-      'Content-Type': file.type,
-      'Content-Length': file.size,
-      'Content-Disposition': `filename="${file.name}"`
-    })
-    return new StreamableFile(stream)
-  }
-
   @Post()
   async createFile(@UserId() userId: string, @Body() fileInfo: CreateFileDto) {
     return await this.fileService.createFile(userId, fileInfo)
@@ -127,5 +112,20 @@ export class FileController {
     @Body() { targetId }: RemoveFileDto
   ) {
     return await this.fileService.removeFile(userId, id, targetId)
+  }
+
+  @Get(':id')
+  async getFileContent(
+    @UserId() userId: string,
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { file, stream } = await this.fileService.getFileStream(userId, id)
+    res.set({
+      'Content-Type': file.type,
+      'Content-Length': file.size,
+      'Content-Disposition': `filename="${file.name}"`
+    })
+    return new StreamableFile(stream)
   }
 }
