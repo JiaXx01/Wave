@@ -7,7 +7,9 @@ import {
   Get,
   Param,
   Delete,
-  Put
+  Put,
+  Res,
+  StreamableFile
 } from '@nestjs/common'
 import { FileService } from './file.service'
 import { CreateFileDto, CreateFolderDto } from './dto/create-file.dto'
@@ -18,11 +20,27 @@ import {
   RemoveFileDto,
   RenameFileDto
 } from './dto/update-file.dto'
+import { Response } from 'express'
 
 @UseGuards(AuthGuard)
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
+
+  @Get(':id')
+  async getFileContent(
+    @UserId() userId: string,
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { file, stream } = await this.fileService.getFileStream(userId, id)
+    res.set({
+      'Content-Type': file.type,
+      'Content-Length': file.size,
+      'Content-Disposition': `filename="${file.name}"`
+    })
+    return new StreamableFile(stream)
+  }
 
   @Post()
   async createFile(@UserId() userId: string, @Body() fileInfo: CreateFileDto) {

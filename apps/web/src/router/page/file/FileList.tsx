@@ -32,7 +32,6 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
 import { Tree, TreeItemData } from '@/components/Tree'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function FileList() {
   const navigate = useNavigate()
@@ -141,6 +140,8 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
       isFolder: false
     })
   }
+  const onDownload = () => {}
+  const onCopyUrl = () => {}
   return (
     <div className="place-self-center">
       <ContextMenu key={file.id}>
@@ -160,6 +161,10 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
         <ContextMenuContent>
           <ContextMenuItem onClick={onRename}>重命名</ContextMenuItem>
           <ContextMenuItem onClick={onRemove}>移动到</ContextMenuItem>
+          <ContextMenuItem onClick={onDownload}>下载</ContextMenuItem>
+          {file.type.includes('image') && (
+            <ContextMenuItem onClick={onCopyUrl}>复制url</ContextMenuItem>
+          )}
           <ContextMenuSeparator />
           <ContextMenuItem
             className="text-red-500 focus:text-red-500"

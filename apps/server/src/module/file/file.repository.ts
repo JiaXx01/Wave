@@ -26,6 +26,12 @@ export class FileRepository {
   @Inject()
   private prisma: PrismaService
 
+  async findFileById(userId: string, fileId: string) {
+    return this.prisma.file.findUnique({
+      where: { id: fileId, userId, isFolder: false }
+    })
+  }
+
   async createFolder(userId: string, name: string, parentId?: string) {
     return this.prisma.file.create({
       data: { userId, name, isFolder: true, parentId },

@@ -15,6 +15,15 @@ export class FileService {
   @Inject('MinioModule')
   private minio: MinioClient
 
+  async getFileStream(userId: string, fileId: string) {
+    const file = await this.file.findFileById(userId, fileId)
+    if (!file || !file.hash) {
+      throw new HttpException('该文件不存在', HttpStatus.NOT_FOUND)
+    }
+    const stream = await this.minio.getObject('file', file.hash)
+    return { file, stream }
+  }
+
   async getFileUploadUrl(userId: string, name: string) {
     return this.minio.presignedPutObject('file', name)
   }
