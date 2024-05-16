@@ -114,6 +114,11 @@ export class FileController {
     return await this.fileService.removeFile(userId, id, targetId)
   }
 
+  @Get(':id/download-url')
+  async getDownloadUrl(@UserId() userId: string, @Param('id') id: string) {
+    return await this.fileService.getDownloadUrl(userId, id)
+  }
+
   @Get(':id')
   async getFileContent(
     @UserId() userId: string,

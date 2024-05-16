@@ -94,3 +94,7 @@ export const getFolderTree = async (): Promise<FolderTree[]> => {
 export const removeFile = async (id: string, targetId?: string) => {
   return http.put(`/file/${id}/remove-to`, { targetId }).then(res => res.data)
 }
+
+export const getDownloadUrl = async (id: string): Promise<{ url: string }> => {
+  return http.get(`/file/${id}/download-url`).then(res => res.data)
+}

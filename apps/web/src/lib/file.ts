@@ -2,6 +2,7 @@ import {
   checkFileHash,
   createFile,
   getChunkUploadUrl,
+  getDownloadUrl,
   getUploadUrl,
   mergeChunks
 } from './api/file'
@@ -131,6 +132,14 @@ export const uploadFile = async (file: File, parentId?: string) => {
       })
     }
   }
+}
+
+export const downloadFile = async (id: string) => {
+  const { url } = await getDownloadUrl(id)
+  const download = document.createElement('a')
+  download.href = url
+  download.click()
+  download.remove()
 }
 
 export const FILE_ICON = {

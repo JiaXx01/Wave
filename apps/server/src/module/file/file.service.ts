@@ -130,4 +130,22 @@ export class FileService {
   async removeFile(userId: string, fileId: string, targetId?: string) {
     return this.file.remove(userId, fileId, targetId)
   }
+
+  async getDownloadUrl(userId: string, fileId: string) {
+    const file = await this.file.findFileById(userId, fileId)
+    if (!file || !file.hash) {
+      throw new HttpException('该文件不存在', HttpStatus.NOT_FOUND)
+    }
+    const url = await this.minio.presignedGetObject(
+      'file',
+      file.hash,
+      7 * 24 * 60 * 60,
+      {
+        // 'Content-Type': file.type,
+        // 'Content-Length': file.size,
+        'response-content-disposition': `attachment;filename="${file.name}"`
+      }
+    )
+    return { url }
+  }
 }

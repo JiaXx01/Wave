@@ -8,7 +8,7 @@ import {
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
 import { FileInfo, FolderInfo } from '@/type'
-import { getFileIcon } from '@/lib/file'
+import { downloadFile, getFileIcon } from '@/lib/file'
 import { useNavigate } from 'react-router-dom'
 import useAlert from '@/components/alert/useAlert'
 import {
@@ -140,7 +140,7 @@ function FileItem({ file, mutate }: { file: FileInfo; mutate: () => void }) {
       isFolder: false
     })
   }
-  const onDownload = () => {}
+  const onDownload = () => downloadFile(file.id)
   const onCopyUrl = () => {}
   return (
     <div className="place-self-center">
