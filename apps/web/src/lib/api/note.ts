@@ -13,9 +13,7 @@ export const findNotes = async (): Promise<NoteInfo[]> => {
 export const deleteNotes = async (ids: string[]) => {
   return http
     .delete('/note', {
-      params: {
-        ids: JSON.stringify(ids)
-      }
+      data: { ids }
     })
     .then(res => res.data)
 }

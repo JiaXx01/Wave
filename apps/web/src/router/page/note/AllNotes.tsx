@@ -72,8 +72,8 @@ export default function AllNotes() {
   }, [filters, notes])
   return (
     <div className="h-full flex flex-col">
-      <div className="h-header px-2 flex items-center gap-2">
-        <div className=" text-lg">所有笔记</div>
+      <header className="h-header px-2 flex items-center gap-2">
+        <div className="text-lg">所有笔记</div>
         <div className="ml-auto flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger>
@@ -104,7 +104,7 @@ export default function AllNotes() {
             创建笔记
           </Button>
         </div>
-      </div>
+      </header>
       <ScrollArea className="flex-1">
         <Filter filters={filters} setFilters={setFilters} />
         <div className="w-page">

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { Link, useLocation } from 'react-router-dom'
-import { FileText, MessagesSquare } from 'lucide-react'
+import { FileText, MessagesSquare, FolderOpen } from 'lucide-react'
 import { useMe } from '@/hooks/swr/user'
 import UserAvatar from '@/components/UserAvatar'
 import { logout } from '@/lib/api/auth'
@@ -29,16 +29,13 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-1">
-        <SidebarLink
-          to="/note"
-          label="笔记"
-          icon={<FileText className="h-4 w-4" />}
-        />
+        <SidebarLink to="/note" label="笔记" icon={<FileText size="16" />} />
         <SidebarLink
           to="/chat"
           label="聊天"
-          icon={<MessagesSquare className="h-4 w-4" />}
+          icon={<MessagesSquare size="16" />}
         />
+        <SidebarLink to="/file" label="文件" icon={<FolderOpen size="16" />} />
       </nav>
     </div>
   )
