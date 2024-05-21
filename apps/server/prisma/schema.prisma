@@ -23,6 +23,10 @@ model User {
 
   notes Note[]
   files File[]
+  friendships1 Friendship[] @relation("User1")
+  friendships2 Friendship[] @relation("User2")
+  friendRequestsSented     FriendRequest[] @relation("Sender")
+  friendRequestsReceived FriendRequest[] @relation("Receiver")
 }
 
 model Note {
@@ -51,4 +55,39 @@ model File {
   children File[]  @relation("ParentChildren")
 
   uploadTime DateTime @default(now())
+}
+
+model Friendship {
+  user1_id String
+  user2_id String
+
+  user1 User @relation("User1", fields: [user1_id], references: [id])
+  user2 User @relation("User2", fields: [user2_id], references: [id])
+
+  @@unique([user1_id, user2_id])
+  @@index([user1_id])
+  @@index([user2_id])
+}
+
+model FriendRequest {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     FriendRequestStatus @default(rejected)
+
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
+
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+enum FriendRequestStatus {
+  pending
+  accepted
+  rejected
 }
