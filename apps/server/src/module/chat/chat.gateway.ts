@@ -8,11 +8,15 @@ import {
 import { ChatService } from './chat.service'
 import { CreateChatDto } from './dto/create-chat.dto'
 import { UpdateChatDto } from './dto/update-chat.dto'
+import type { Socket } from 'socket.io'
+import { JwtService } from '@nestjs/jwt'
+import { Inject } from '@nestjs/common'
+import { TokenPayload } from 'src/type'
+import { RedisService } from 'src/redis/redis.service'
 
 @WebSocketGateway({
   cors: {
     origin: 'http://localhost:5173',
-    // methods: ['GET', 'POST'],
     allowedHeaders: ['*'],
     credentials: true
   }
@@ -20,13 +24,30 @@ import { UpdateChatDto } from './dto/update-chat.dto'
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly chatService: ChatService) {}
 
-  handleConnection(client: any, ...args: any[]) {
-    console.log(client.id)
-    console.log(args)
+  @Inject()
+  private jwt: JwtService
+
+  @Inject()
+  private redis: RedisService
+
+  async handleConnection(client: Socket) {
+    const socketId = client.id
+    const accessToken = client.handshake.auth.token
+    if (!accessToken) return client.disconnect()
+    try {
+      const { userId } = this.jwt.verify<TokenPayload>(accessToken)
+      client.handshake.query.userId = userId
+      await this.redis.setSocketId(userId, socketId)
+    } catch (err) {
+      client.disconnect()
+    }
   }
 
-  handleDisconnect(client: any) {
-    console.log(client.id, 'disconnect')
+  async handleDisconnect(client: Socket) {
+    const userId = client.handshake.query.userId
+    if (typeof userId === 'string') {
+      await this.redis.delTokenId(userId)
+    }
   }
 
   @SubscribeMessage('createChat')
