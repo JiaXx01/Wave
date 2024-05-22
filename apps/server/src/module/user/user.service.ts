@@ -7,7 +7,11 @@ export class UserService {
   user: UserRepository
 
   async findUserById(id: string) {
-    return this.user.findById(id)
+    const user = await this.user.findById(id)
+    if (!user) {
+      throw new HttpException('用户不存在', HttpStatus.UNAUTHORIZED)
+    }
+    return user
   }
 
   async initName(id: string, name: string) {

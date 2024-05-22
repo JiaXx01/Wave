@@ -6,6 +6,7 @@ declare module 'express' {
 
 export interface TokenPayload {
   userId: string
+  type: 'access' | 'refresh'
   exp: number
   iat: number
 }

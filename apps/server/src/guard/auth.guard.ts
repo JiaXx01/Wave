@@ -28,8 +28,8 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException()
     }
     try {
-      const { userId } = this.jwt.verify<TokenPayload>(token)
-      if (await this.redis.checkTokenBlackList(token)) {
+      const { userId, type } = this.jwt.verify<TokenPayload>(token)
+      if (type !== 'access' || (await this.redis.checkTokenBlackList(token))) {
         throw new UnauthorizedException()
       }
       request.userId = userId
