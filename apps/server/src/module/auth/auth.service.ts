@@ -72,7 +72,7 @@ export class AuthService {
 
   private getToken(userId: string, type: 'access' | 'refresh') {
     return this.jwt.sign(
-      { userId },
+      { userId, type },
       {
         expiresIn:
           type === 'access'
