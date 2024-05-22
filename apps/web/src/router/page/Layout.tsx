@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useMe } from '@/hooks/swr/user'
 import InitName from './InitName'
 import { useKeepOutlet } from '../KeepAlive'
+import ChatContext from './chat/ChatContext'
 
 export default function Layout() {
   const navigate = useNavigate()
@@ -17,14 +18,16 @@ export default function Layout() {
   if (isLoading) return null
   if (!user?.name) return <InitName />
   return (
-    <div className="h-screen w-screen flex">
-      <div className="hidden md:block">
-        <Sidebar />
+    <ChatContext>
+      <div className="h-screen w-screen flex">
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+        <div className="flex-1">
+          {/* <Outlet /> */}
+          {element}
+        </div>
       </div>
-      <div className="flex-1">
-        {/* <Outlet /> */}
-        {element}
-      </div>
-    </div>
+    </ChatContext>
   )
 }
