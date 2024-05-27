@@ -18,8 +18,8 @@ import { logout } from '@/lib/api/auth'
 
 export default function Sidebar() {
   return (
-    <div className="h-screen w-sidebar border-r p-2 flex flex-col gap-2">
-      <div className="flex justify-between gap-2">
+    <div className="h-screen w-sidebar border-r px-2 flex flex-col gap-2">
+      <div className="h-header flex items-center justify-between gap-2">
         <div className="flex-1">
           <UserMenu />
         </div>

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, User } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { FindUserQuery } from 'src/type'
 
 @Injectable()
 export class UserRepository {
@@ -35,5 +36,39 @@ export class UserRepository {
         name
       }
     })
+  }
+
+  async findOtherUserAndFriendship(
+    userId: string,
+    { id, email, name }: FindUserQuery
+  ) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id,
+        email,
+        name
+      },
+      include: {
+        friendships1: { where: { user2_id: userId } },
+        friendships2: { where: { user1_id: userId } },
+        friendRequestsSent: { where: { receiverId: userId } },
+        friendRequestsReceived: { where: { senderId: userId } }
+      }
+    })
+    const isFriend =
+      user.friendships1.length > 0 || user.friendships2.length > 0
+    const isFriendRequestPending =
+      (user.friendRequestsSent.length > 0 &&
+        user.friendRequestsSent[0].status === 'pending') ||
+      (user.friendRequestsReceived.length > 0 &&
+        user.friendRequestsReceived[0].status === 'pending')
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      headPic: user.headPic,
+      isFriend,
+      isFriendRequestPending
+    }
   }
 }
