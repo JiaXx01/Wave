@@ -4,6 +4,7 @@ import { Redis } from 'ioredis'
 
 const LOGIN_CODE = 'LOGIN_CODE_'
 const TOKEN_BLACKLIST = 'TOKEN_BLACKLIST_'
+const SOCKET_ID = 'SOCKET_ID_'
 
 @Injectable()
 export class RedisService {
@@ -31,5 +32,17 @@ export class RedisService {
 
   async checkTokenBlackList(token: string) {
     return (await this.redis.exists(TOKEN_BLACKLIST + token)) === 1
+  }
+
+  async setSocketId(userId: string, socketId: string) {
+    await this.redis.set(SOCKET_ID + userId, socketId)
+  }
+
+  async getTokenId(userId: string) {
+    return await this.redis.get(SOCKET_ID + userId)
+  }
+
+  async delTokenId(userId: string) {
+    await this.redis.del(SOCKET_ID + userId)
   }
 }

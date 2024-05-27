@@ -25,8 +25,8 @@ export class RefreshTokenGuard implements CanActivate {
     }
 
     try {
-      const { userId, exp } = this.jwt.verify<TokenPayload>(token)
-      if (await this.redis.checkTokenBlackList(token)) {
+      const { userId, type, exp } = this.jwt.verify<TokenPayload>(token)
+      if (type !== 'refresh' || (await this.redis.checkTokenBlackList(token))) {
         throw new UnauthorizedException()
       }
       await this.redis.addTokenBlacklist(token, exp)
