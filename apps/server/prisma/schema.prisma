@@ -25,7 +25,7 @@ model User {
   files File[]
   friendships1 Friendship[] @relation("User1")
   friendships2 Friendship[] @relation("User2")
-  friendRequestsSented     FriendRequest[] @relation("Sender")
+  friendRequestsSent    FriendRequest[] @relation("Sender")
   friendRequestsReceived FriendRequest[] @relation("Receiver")
 }
 
@@ -58,6 +58,7 @@ model File {
 }
 
 model Friendship {
+  id String  @id @default(cuid())
   user1_id String
   user2_id String
 
@@ -73,7 +74,7 @@ model FriendRequest {
   id         String   @id @default(cuid())
   senderId   String
   receiverId String
-  status     FriendRequestStatus @default(rejected)
+  status     FriendRequestStatus @default(pending)
 
   sender     User     @relation("Sender", fields: [senderId], references: [id])
   receiver   User     @relation("Receiver", fields: [receiverId], references: [id])

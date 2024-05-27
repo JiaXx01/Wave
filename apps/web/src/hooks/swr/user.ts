@@ -1,8 +1,8 @@
 import http from '@/lib/api/http'
-import { User } from '@/type'
+import { CurUser } from '@/type'
 import useSWR from 'swr'
 
-const getMe = (url: string): Promise<User> =>
+const getMe = (url: string): Promise<CurUser> =>
   http.get(url).then(res => res.data)
 export const useMe = () => {
   const { data: user, isLoading } = useSWR('/user/me', getMe, {

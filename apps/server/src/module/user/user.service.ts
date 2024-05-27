@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { UserRepository } from './user.repository'
+import { FindUserQuery } from 'src/type'
 
 @Injectable()
 export class UserService {
@@ -17,6 +18,18 @@ export class UserService {
   async initName(id: string, name: string) {
     await this.verifyName(name)
     await this.user.setName(id, name)
+  }
+
+  async findOtherUser(userId: string, otherUser: FindUserQuery) {
+    const { id, name, email } = otherUser
+    if (!id && !name && !email) {
+      throw new HttpException('查询信息为空', HttpStatus.BAD_REQUEST)
+    }
+    const user = await this.findUserById(userId)
+    if (id === user.id || email === user.email || name === user.name) {
+      throw new HttpException('请不要查找自己', HttpStatus.BAD_REQUEST)
+    }
+    return this.user.findOtherUserAndFriendship(userId, otherUser)
   }
 
   private async verifyName(name: string) {
