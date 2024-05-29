@@ -38,16 +38,9 @@ export class UserRepository {
     })
   }
 
-  async findOtherUserAndFriendship(
-    userId: string,
-    { id, email, name }: FindUserQuery
-  ) {
+  async findOtherUserAndFriendship(userId: string, otherUser: FindUserQuery) {
     const user = await this.prisma.user.findUniqueOrThrow({
-      where: {
-        id,
-        email,
-        name
-      },
+      where: otherUser,
       include: {
         friendships1: { where: { user2_id: userId } },
         friendships2: { where: { user1_id: userId } },

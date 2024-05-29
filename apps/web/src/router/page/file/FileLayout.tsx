@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { FileSearch2, FolderPlus, FolderUp } from 'lucide-react'
+import { CloudUpload, FileSearch2, FolderPlus, FolderUp } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { Progress } from '@/components/ui/progress'
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react'
 import { createFolder, findKeyword } from '@/lib/api/file'
 import { useFiles } from '@/hooks/swr/file'
@@ -32,6 +38,7 @@ export default function FileLayout() {
         </div>
 
         <div className="flex items-center gap-2">
+          <UploadProgress />
           <SearchFile />
           <CreateFolder mutate={mutate} />
           <UploadFile mutate={mutate} />
@@ -195,5 +202,39 @@ function SearchFile() {
         </ScrollArea>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function UploadProgress() {
+  const progress = useFileStore.use.uploadProgress()
+  const uploadingNum = Object.keys(progress).length
+  if (uploadingNum === 0) return null
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <CloudUpload size="16" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="flex flex-col gap-2">
+        {Object.keys(progress).map(key => {
+          const { fileName, loaded, total } = progress[key]
+          const percentage = ((loaded / total) * 100).toFixed(2)
+          return (
+            <div key={key}>
+              <div className="w-[254px] flex justify-between items-center gap-2">
+                <div className="text-sm flex-1 text-nowrap text-ellipsis overflow-hidden">
+                  {fileName}
+                </div>
+                <div className="text-xs text-muted-foreground w-[50px]">
+                  {percentage}%
+                </div>
+              </div>
+              <Progress value={Number(percentage)} className="h-2" />
+            </div>
+          )
+        })}
+      </PopoverContent>
+    </Popover>
   )
 }

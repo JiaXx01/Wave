@@ -13,6 +13,12 @@ type Operation = 'rename' | 'remove'
 
 type FolderStack = { id: string; name: string }[]
 
+type ProgressInfo = {
+  fileName: string
+  loaded: number
+  total: number
+}
+
 type FileState = {
   folderStack: FolderStack
   back: (id?: string | null) => void
@@ -31,6 +37,11 @@ type FileState = {
     }
   ) => void
   closeOperation: (operation: Operation) => void
+
+  uploadProgress: Record<string, ProgressInfo>
+  createUploadProgress: (hash: string, progressInfo: ProgressInfo) => void
+  addUploadProgress: (hash: string, add: number) => void
+  removeUploadProgress: (hash: string) => void
 }
 
 const useFileStoreBase = create<FileState>()(
@@ -72,9 +83,34 @@ const useFileStoreBase = create<FileState>()(
     closeOperation: operation =>
       set(state => {
         state[operation] = { open: false }
+      }),
+
+    uploadProgress: {},
+    createUploadProgress: (hash, progressInfo) =>
+      set(({ uploadProgress }) => {
+        uploadProgress[hash] = progressInfo
+      }),
+    addUploadProgress: (hash, add) =>
+      set(({ uploadProgress }) => {
+        uploadProgress[hash].loaded += add
+      }),
+    removeUploadProgress: hash =>
+      set(({ uploadProgress }) => {
+        delete uploadProgress[hash]
       })
   }))
 )
+
+export const createUploadProgress = (
+  hash: string,
+  progressInfo: ProgressInfo
+) => useFileStoreBase.getState().createUploadProgress(hash, progressInfo)
+
+export const addUploadProgress = (hash: string, add: number) =>
+  useFileStoreBase.getState().addUploadProgress(hash, add)
+
+export const removeUploadProgress = (hash: string) =>
+  useFileStoreBase.getState().removeUploadProgress(hash)
 
 const useFileStore = createSelectors(useFileStoreBase)
 
