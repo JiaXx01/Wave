@@ -39,11 +39,15 @@ export class FileService {
     const chunkHashNoList: string[] = await new Promise((resolve) => {
       const list: string[] = []
       const stream = this.minio.listObjects('chunk', hash, true)
-      stream.on('data', (obj) => list.push(obj.name as string))
+      stream.on('data', (obj) => {
+        const index = Number(obj.name?.split('/')[1])
+        list[index] = obj.name!
+      })
       stream.on('end', () => {
         resolve(list)
       })
     })
+
     // 合并切片
     const sourceList = chunkHashNoList.map((hashNo) => {
       return new CopySourceOptions({
