@@ -25,7 +25,7 @@ export class FileService {
     return { file, stream }
   }
 
-  async getFileUploadUrl(userId: string, name: string) {
+  async getFileUploadUrl(name: string) {
     return this.minio.presignedPutObject('file', name)
   }
 

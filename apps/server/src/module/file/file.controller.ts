@@ -51,8 +51,8 @@ export class FileController {
   }
 
   @Get('presigned-url')
-  async getUploadUrl(@UserId() userId: string, @Query('hash') hash: string) {
-    return await this.fileService.getFileUploadUrl(userId, hash)
+  async getUploadUrl(@Query('hash') hash: string) {
+    return await this.fileService.getFileUploadUrl(hash)
   }
 
   @Get('chunk/presigned-url')
