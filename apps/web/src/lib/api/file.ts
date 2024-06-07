@@ -57,7 +57,13 @@ export const mergeChunks = async (fileInfo: CreateFileParams) => {
 
 export const checkFileHash = async (
   hash: string
-): Promise<boolean | string[]> => {
+): Promise<
+  | true
+  | {
+      list: string[]
+      loaded: number
+    }
+> => {
   return http.get('/file/check/' + hash).then(res => res.data)
 }
 

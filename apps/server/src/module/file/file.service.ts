@@ -17,6 +17,7 @@ export class FileService {
 
   async getFileStream(userId: string, fileId: string) {
     const file = await this.file.findFileById(userId, fileId)
+    console.log(file)
     if (!file || !file.hash) {
       throw new HttpException('该文件不存在', HttpStatus.NOT_FOUND)
     }
@@ -24,7 +25,7 @@ export class FileService {
     return { file, stream }
   }
 
-  async getFileUploadUrl(userId: string, name: string) {
+  async getFileUploadUrl(name: string) {
     return this.minio.presignedPutObject('file', name)
   }
 
@@ -38,11 +39,15 @@ export class FileService {
     const chunkHashNoList: string[] = await new Promise((resolve) => {
       const list: string[] = []
       const stream = this.minio.listObjects('chunk', hash, true)
-      stream.on('data', (obj) => list.push(obj.name as string))
+      stream.on('data', (obj) => {
+        const index = Number(obj.name?.split('/')[1])
+        list[index] = obj.name!
+      })
       stream.on('end', () => {
         resolve(list)
       })
     })
+
     // 合并切片
     const sourceList = chunkHashNoList.map((hashNo) => {
       return new CopySourceOptions({
@@ -96,13 +101,20 @@ export class FileService {
     }
   }
 
-  private async getUploadedChunkHashNo(hash: string): Promise<string[]> {
+  private async getUploadedChunkHashNo(hash: string): Promise<{
+    list: string[]
+    loaded: number
+  }> {
     return new Promise((resolve) => {
       const list: string[] = []
+      let loaded = 0
       const stream = this.minio.listObjects('chunk', hash, true)
-      stream.on('data', (obj) => list.push(obj.name as string))
+      stream.on('data', (obj) => {
+        list.push(obj.name as string)
+        loaded += obj.size
+      })
       stream.on('end', () => {
-        resolve(list)
+        resolve({ list, loaded })
       })
     })
   }

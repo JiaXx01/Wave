@@ -21,6 +21,12 @@ import UnknownIcon from '@/assets/file_icon/unknown.png'
 import VideoIcon from '@/assets/file_icon/video.png'
 import WordIcon from '@/assets/file_icon/word.png'
 import ZipIcon from '@/assets/file_icon/zip.png'
+import axios from 'axios'
+import {
+  addUploadProgress,
+  createUploadProgress,
+  removeUploadProgress
+} from '@/router/page/file/fileStore'
 
 const CHUNK_SIZE = 5 * 1024 * 1024
 
@@ -72,12 +78,18 @@ const sliceFile = async (file: File): Promise<SliceFileResult> => {
 export const uploadFile = async (file: File, parentId?: string) => {
   if (file.size <= CHUNK_SIZE) {
     const hash = await calculateHash(file)
-    const existed = await checkFileHash(hash)
-    if (!existed) {
+    const uploadedState = await checkFileHash(hash)
+    createUploadProgress(hash, {
+      fileName: file.name,
+      loaded: 0,
+      total: file.size
+    })
+    if (uploadedState !== true) {
       const url = await getUploadUrl(hash)
-      await fetch(url, {
-        method: 'PUT',
-        body: file
+      await axios.put(url, file, {
+        onUploadProgress(e) {
+          addUploadProgress(hash, e.bytes)
+        }
       })
     }
     await createFile({
@@ -88,27 +100,35 @@ export const uploadFile = async (file: File, parentId?: string) => {
       suffix: mime.getExtension(file.type),
       size: file.size
     })
+    removeUploadProgress(hash)
   } else {
     const { chunkList, hash } = await sliceFile(file)
     /**
      * 根据文件hash判断文件是秒传还是续传还是完整上传
      */
-    const hashState = await checkFileHash(hash)
-    if (Array.isArray(hashState)) {
-      const chunkHashMap = hashState.reduce(
+    const uploadedState = await checkFileHash(hash)
+    if (uploadedState !== true) {
+      const { list, loaded } = uploadedState
+      const chunkHashMap = list.reduce(
         (pre, cur) => {
           pre[cur] = true
           return pre
         },
         {} as Record<string, boolean>
       )
+      createUploadProgress(hash, {
+        fileName: file.name,
+        loaded,
+        total: file.size
+      })
       const uploadList = chunkList.map(async (chunk, index) => {
         const hashNo = hash + '/' + index
         if (chunkHashMap[hashNo]) return
         return await getChunkUploadUrl(hashNo).then(url => {
-          return fetch(url, {
-            method: 'PUT',
-            body: chunk
+          return axios.put(url, chunk, {
+            onUploadProgress(e) {
+              addUploadProgress(hash, e.bytes)
+            }
           })
         })
       })
@@ -131,6 +151,7 @@ export const uploadFile = async (file: File, parentId?: string) => {
         size: file.size
       })
     }
+    removeUploadProgress(hash)
   }
 }
 
