@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { FileService } from './file.service'
 import { FileController } from './file.controller'
-import { FileRepository } from './file.repository'
+import { FileRepository } from '../../repository/file.repository'
 import * as Minio from 'minio'
 
 @Module({

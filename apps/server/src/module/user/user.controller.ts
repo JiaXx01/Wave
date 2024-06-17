@@ -23,7 +23,6 @@ export class UserController {
 
   @Get('other')
   async findOtherUser(@UserId() userId: string, @Query() query: FindUserQuery) {
-    console.log(query)
     return this.userService.findOtherUser(userId, query)
   }
 }

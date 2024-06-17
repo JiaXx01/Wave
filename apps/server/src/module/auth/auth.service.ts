@@ -10,7 +10,7 @@ import { EmailService } from 'src/email/email.service'
 import { RefreshTokenGuard } from 'src/guard/refresh-token.guard'
 import { RedisService } from 'src/redis/redis.service'
 import { TokenPayload } from 'src/type'
-import { UserRepository } from 'src/module/user/user.repository'
+import { UserRepository } from 'src/repository/user.repository'
 
 @Injectable()
 export class AuthService {

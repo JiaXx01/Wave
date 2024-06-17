@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
-import { FileRepository } from './file.repository'
+import { FileRepository } from '../../repository/file.repository'
 import {
   Client as MinioClient,
   CopySourceOptions,

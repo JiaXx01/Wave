@@ -4,8 +4,10 @@ import { Menu } from 'lucide-react'
 import MessageList from './MessageList'
 import FriendList from './FriendList'
 import NotificationList from './NotificationList'
+import useChatStore from './chatStore'
 
 export default function ChatLeftArea() {
+  const friendRequestListCount = useChatStore.use.friendRequestList().length
   return (
     <Tabs defaultValue="message" className="min-w-[300px] h-full flex flex-col">
       <div className="h-header border-b flex items-center gap-2 px-2">
@@ -15,7 +17,9 @@ export default function ChatLeftArea() {
         <div className="text-lg text-nowrap">聊天</div>
         <TabsList className="ml-auto">
           <TabsTrigger value="message">消息</TabsTrigger>
-          <TabsTrigger value="friend">好友</TabsTrigger>
+          <TabsTrigger value="friend">
+            好友 {friendRequestListCount > 0 && friendRequestListCount}
+          </TabsTrigger>
           <TabsTrigger value="notify">通知</TabsTrigger>
         </TabsList>
       </div>

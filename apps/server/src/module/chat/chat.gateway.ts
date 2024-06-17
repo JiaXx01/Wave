@@ -3,16 +3,16 @@ import {
   SubscribeMessage,
   MessageBody,
   OnGatewayConnection,
-  OnGatewayDisconnect
+  OnGatewayDisconnect,
+  ConnectedSocket
 } from '@nestjs/websockets'
 import { ChatService } from './chat.service'
-import { CreateChatDto } from './dto/create-chat.dto'
-import { UpdateChatDto } from './dto/update-chat.dto'
 import type { Socket } from 'socket.io'
 import { JwtService } from '@nestjs/jwt'
 import { Inject } from '@nestjs/common'
 import { TokenPayload } from 'src/type'
 import { RedisService } from 'src/redis/redis.service'
+import { UserId } from 'src/custom.decorator'
 
 @WebSocketGateway({
   cors: {
@@ -46,33 +46,55 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const userId = client.handshake.query.userId
     if (typeof userId === 'string') {
-      await this.redis.delTokenId(userId)
+      await this.redis.delSocketId(userId)
     }
   }
 
-  @SubscribeMessage('createChat')
-  create(@MessageBody() createChatDto: CreateChatDto) {
-    console.log('jjjj')
-    return this.chatService.create(createChatDto)
+  @SubscribeMessage('findPendingMessage')
+  async findPendingMessage(@UserId() userId: string) {
+    console.log('pending', userId)
+    return await this.chatService.findPendingMessage(userId)
   }
 
-  @SubscribeMessage('findAllChat')
-  findAll() {
-    return this.chatService.findAll()
+  @SubscribeMessage('sendFriendRequest')
+  async sendFriendRequest(
+    @UserId() userId: string,
+    @MessageBody() id: string,
+    @ConnectedSocket() socket: Socket
+  ) {
+    const target = await this.redis.getSocketId(id)
+    const sender = await this.chatService.sendFriendRequest(userId, id)
+    if (target) {
+      socket.to(target).emit('receiveFriendRequest', sender)
+    }
+    return {
+      success: true,
+      data: '好友请求发送成功'
+    }
   }
 
-  @SubscribeMessage('findOneChat')
-  findOne(@MessageBody() id: number) {
-    return this.chatService.findOne(id)
-  }
-
-  @SubscribeMessage('updateChat')
-  update(@MessageBody() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(updateChatDto.id, updateChatDto)
-  }
-
-  @SubscribeMessage('removeChat')
-  remove(@MessageBody() id: number) {
-    return this.chatService.remove(id)
+  @SubscribeMessage('handleFriendRequest')
+  async handleFriendRequest(
+    @UserId() userId: string,
+    @MessageBody() { id, isAccept }: { id: string; isAccept: boolean },
+    @ConnectedSocket() socket: Socket
+  ) {
+    console.log(userId, id, isAccept)
+    const { sender, receiver } = await this.chatService.handleFriendRequest(
+      userId,
+      id,
+      isAccept
+    )
+    const target = await this.redis.getSocketId(sender.id)
+    if (target) {
+      socket.to(target).emit('friendRequestProcessed', {
+        receiver,
+        isAccept
+      })
+    }
+    return {
+      success: true,
+      data: '好友请求已处理'
+    }
   }
 }

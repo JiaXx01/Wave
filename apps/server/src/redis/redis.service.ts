@@ -38,11 +38,11 @@ export class RedisService {
     await this.redis.set(SOCKET_ID + userId, socketId)
   }
 
-  async getTokenId(userId: string) {
+  async getSocketId(userId: string) {
     return await this.redis.get(SOCKET_ID + userId)
   }
 
-  async delTokenId(userId: string) {
+  async delSocketId(userId: string) {
     await this.redis.del(SOCKET_ID + userId)
   }
 }

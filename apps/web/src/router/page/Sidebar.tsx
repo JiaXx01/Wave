@@ -15,8 +15,10 @@ import { FileText, MessagesSquare, FolderOpen } from 'lucide-react'
 import { useMe } from '@/hooks/swr/user'
 import UserAvatar from '@/components/UserAvatar'
 import { logout } from '@/lib/api/auth'
+import useChatStore from './chat/chatStore'
 
 export default function Sidebar() {
+  const friendRequestListCount = useChatStore.use.friendRequestList().length
   return (
     <div className="h-screen w-sidebar border-r px-2 flex flex-col gap-2">
       <div className="h-header flex items-center justify-between gap-2">
@@ -34,6 +36,7 @@ export default function Sidebar() {
           to="/chat"
           label="聊天"
           icon={<MessagesSquare size="16" />}
+          count={friendRequestListCount}
         />
         <SidebarLink to="/file" label="文件" icon={<FolderOpen size="16" />} />
       </nav>
@@ -45,9 +48,10 @@ type SidebarLinkProps = {
   to: string
   label: string
   icon: ReactElement
+  count?: number
 }
 
-function SidebarLink({ to, label, icon }: SidebarLinkProps) {
+function SidebarLink({ to, label, icon, count = 0 }: SidebarLinkProps) {
   const { pathname } = useLocation()
   const isActive = pathname.startsWith(to)
   const linkClasses = cn(
@@ -61,6 +65,7 @@ function SidebarLink({ to, label, icon }: SidebarLinkProps) {
       <div className="w-full flex items-center gap-3">
         <span>{icon}</span>
         <span className="leading-4">{label}</span>
+        {count > 0 && <span className="ml-auto">{count}</span>}
       </div>
     </Link>
   )

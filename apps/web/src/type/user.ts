@@ -3,7 +3,7 @@ export type Tokens = {
   refreshToken: string
 }
 
-export type CurUser = {
+export type User = {
   id: string
   name?: string | null
   email: string

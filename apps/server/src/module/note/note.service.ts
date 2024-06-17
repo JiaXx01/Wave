@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { NoteRepository } from './note.repository'
+import { NoteRepository } from '../../repository/note.repository'
 
 @Injectable()
 export class NoteService {

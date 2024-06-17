@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { NoteService } from './note.service'
 import { NoteController } from './note.controller'
-import { NoteRepository } from './note.repository'
+import { NoteRepository } from '../../repository/note.repository'
 
 @Module({
   controllers: [NoteController],
