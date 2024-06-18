@@ -72,7 +72,7 @@ function FriendList({ searchKey }: { searchKey: string }) {
       {showFriendList.map(friend => (
         <div
           key={friend.id}
-          className="flex items-center gap-2 py-1 px-2 my-1 rounded hover:bg-muted"
+          className="flex items-center gap-2 py-1 px-2 my-1 rounded-md hover:bg-muted"
         >
           <UserAvatar src={friend.headPic} />
           <div>{friend.name}</div>
