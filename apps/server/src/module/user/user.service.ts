@@ -1,11 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { UserRepository } from '../../repository/user.repository'
 import { FindUserQuery } from 'src/type'
+import { FriendshipRepository } from 'src/repository/friendship.repository'
 
 @Injectable()
 export class UserService {
   @Inject()
   user: UserRepository
+
+  @Inject()
+  friend: FriendshipRepository
 
   async findUserById(id: string) {
     const user = await this.user.findById(id)
@@ -30,6 +34,10 @@ export class UserService {
       throw new HttpException('请不要查找自己', HttpStatus.BAD_REQUEST)
     }
     return this.user.findOtherUserAndFriendship(userId, otherUser)
+  }
+
+  async findFriendList(userId: string) {
+    return this.friend.findFriendList(userId)
   }
 
   private async verifyName(name: string) {

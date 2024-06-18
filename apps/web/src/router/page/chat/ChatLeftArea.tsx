@@ -2,14 +2,17 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Menu } from 'lucide-react'
 import MessageList from './MessageList'
-import FriendList from './FriendList'
+import FriendList from './Friend'
 import NotificationList from './NotificationList'
 import useChatStore from './chatStore'
 
 export default function ChatLeftArea() {
   const friendRequestListCount = useChatStore.use.friendRequestList().length
   return (
-    <Tabs defaultValue="message" className="min-w-[300px] h-full flex flex-col">
+    <Tabs
+      defaultValue="message"
+      className="min-w-[300px] h-screen flex flex-col"
+    >
       <div className="h-header border-b flex items-center gap-2 px-2">
         <Button variant="outline" size="icon" className="md:hidden">
           <Menu size="18" />
@@ -23,7 +26,7 @@ export default function ChatLeftArea() {
           <TabsTrigger value="notify">通知</TabsTrigger>
         </TabsList>
       </div>
-      <div className="w-full flex-1">
+      <div className="w-full h-[calc(100vh-var(--header-height))]">
         <TabsContent value="message" className="h-full m-0">
           <MessageList />
         </TabsContent>

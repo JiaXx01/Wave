@@ -79,4 +79,20 @@ export class FriendshipRepository {
       }
     })
   }
+
+  async findFriendList(userId: string) {
+    const { friendships1, friendships2 } =
+      await this.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: {
+          friendships1: { select: { user2: { select: SELECT_USER } } },
+          friendships2: { select: { user1: { select: SELECT_USER } } }
+        }
+      })
+
+    return [
+      ...friendships1.map((friendships) => friendships.user2),
+      ...friendships2.map((friendship) => friendship.user1)
+    ]
+  }
 }

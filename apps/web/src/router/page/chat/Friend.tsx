@@ -23,20 +23,37 @@ import {
 import { Badge } from '@/components/ui/badge'
 import useChatStore from './chatStore'
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import timezone from 'dayjs/plugin/timezone'
-import 'dayjs/locale/zh-cn'
-dayjs.locale('zh-cn')
-dayjs.extend(relativeTime)
-dayjs.extend(timezone)
 
-export default function FriendList() {
+import { useFriendList } from '@/hooks/swr/user'
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+export default function Friend() {
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       <div className="flex gap-2 p-2">
         <Input className="flex-1" placeholder="搜索好友" />
         <NewFriend />
       </div>
+      <ScrollArea className="flex-1 px-2">
+        <FriendList />
+      </ScrollArea>
+    </div>
+  )
+}
+
+function FriendList() {
+  const { friendList } = useFriendList()
+  return (
+    <div className="flex-1">
+      {friendList?.map(friend => (
+        <div
+          key={friend.id}
+          className="flex items-center gap-2 py-1 px-2 my-1 rounded hover:bg-muted"
+        >
+          <UserAvatar src={friend.headPic} />
+          <div>{friend.name}</div>
+        </div>
+      ))}
     </div>
   )
 }

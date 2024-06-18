@@ -25,4 +25,9 @@ export class UserController {
   async findOtherUser(@UserId() userId: string, @Query() query: FindUserQuery) {
     return this.userService.findOtherUser(userId, query)
   }
+
+  @Get('friend')
+  async findFriendList(@UserId() userId: string) {
+    return this.userService.findFriendList(userId)
+  }
 }
