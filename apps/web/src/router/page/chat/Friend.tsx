@@ -8,7 +8,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { useEffect, useState } from 'react'
-import { OtherUser } from '@/type'
+import { OtherUser, User } from '@/type'
 import { findOtherUser } from '@/lib/api/user'
 import UserAvatar from '@/components/UserAvatar'
 import { socket } from '@/lib/socket'
@@ -26,26 +26,50 @@ import dayjs from 'dayjs'
 
 import { useFriendList } from '@/hooks/swr/user'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useDebounceEffect } from 'ahooks'
 
 export default function Friend() {
+  const [friendSearchKey, setFriendSearchKey] = useState('')
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex gap-2 p-2">
-        <Input className="flex-1" placeholder="搜索好友" />
+        <Input
+          className="flex-1"
+          placeholder="搜索好友"
+          value={friendSearchKey}
+          onChange={e => setFriendSearchKey(e.target.value)}
+        />
         <NewFriend />
       </div>
       <ScrollArea className="flex-1 px-2">
-        <FriendList />
+        <FriendList searchKey={friendSearchKey} />
       </ScrollArea>
     </div>
   )
 }
 
-function FriendList() {
+function FriendList({ searchKey }: { searchKey: string }) {
   const { friendList } = useFriendList()
+  const [showFriendList, setShowFriendList] = useState<User[]>([])
+  useDebounceEffect(
+    () => {
+      if (!searchKey || !friendList) {
+        setShowFriendList(friendList ? friendList : [])
+      } else {
+        const showFriendList = friendList.filter(friend =>
+          friend.name
+            ?.toLocaleLowerCase()
+            ?.includes(searchKey.toLocaleLowerCase())
+        )
+        setShowFriendList(showFriendList)
+      }
+    },
+    [searchKey, friendList],
+    { wait: 500 }
+  )
   return (
     <div className="flex-1">
-      {friendList?.map(friend => (
+      {showFriendList.map(friend => (
         <div
           key={friend.id}
           className="flex items-center gap-2 py-1 px-2 my-1 rounded hover:bg-muted"
