@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-semi */
 import { StoreApi, UseBoundStore } from 'zustand'
 
 type WithSelectors<S> = S extends { getState: () => infer T }
@@ -10,7 +11,6 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
   const store = _store as WithSelectors<typeof _store>
   store.use = {}
   for (const k of Object.keys(store.getState())) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-extra-semi
     ;(store.use as any)[k] = () => store(s => s[k as keyof typeof s])
   }
 

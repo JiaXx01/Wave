@@ -15,8 +15,7 @@ type TreeItemData = {
   id: string
   name: string
   children?: TreeItemData[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
+  [key: string]: unknown
 }
 
 type TreeProps = HTMLAttributes<HTMLDivElement> & {
