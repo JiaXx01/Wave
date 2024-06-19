@@ -5,6 +5,7 @@ import {
   Inject,
   Post,
   Query,
+  Req,
   UseGuards
 } from '@nestjs/common'
 import { LoginDto } from './dto/login.dto'
@@ -12,6 +13,8 @@ import { AuthService } from './auth.service'
 import { RefreshTokenGuard } from 'src/guard/refresh-token.guard'
 import { UserId } from 'src/custom.decorator'
 import { LogoutDto } from './dto/logout.dto'
+import { AuthGuard } from '@nestjs/passport'
+import { Request } from 'express'
 
 @Controller('auth')
 export class AuthController {
@@ -29,10 +32,30 @@ export class AuthController {
     return await this.authService.login(email, code)
   }
 
+  @Get('login/github')
+  @UseGuards(AuthGuard('github'))
+  async githubLogin() {}
+
   @UseGuards(RefreshTokenGuard)
   @Get('refresh/token')
   async refreshToken(@UserId() userId: string) {
     return this.authService.refreshToken(userId)
+  }
+
+  @Get('callback/github')
+  @UseGuards(AuthGuard('github'))
+  async githubCallback(@Req() req: Request) {
+    return req.user
+  }
+
+  @Get('login/google')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin() {}
+
+  @Get('callback/google')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req: Request) {
+    return req.user
   }
 
   @Post('logout')
