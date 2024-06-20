@@ -14,6 +14,9 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
-    return profile
+    const { emails } = profile
+    return {
+      email: emails?.[0].value
+    }
   }
 }

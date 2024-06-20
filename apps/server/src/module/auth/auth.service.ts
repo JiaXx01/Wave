@@ -29,13 +29,16 @@ export class AuthService {
     await this.email.sendLoginCode(email, code)
   }
 
-  async login(email: string, code: string) {
+  async emailLogin(email: string, code: string) {
     const cachedCode = await this.redis.getLoginCode(email)
     if (cachedCode !== code) {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST)
     }
     await this.redis.delLoginCode(email)
+    return await this.login(email)
+  }
 
+  async login(email: string) {
     let user = await this.user.findByEmail(email)
     if (!user) {
       user = await this.user.create({

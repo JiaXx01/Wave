@@ -6,6 +6,7 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards
 } from '@nestjs/common'
 import { LoginDto } from './dto/login.dto'
@@ -14,7 +15,7 @@ import { RefreshTokenGuard } from 'src/guard/refresh-token.guard'
 import { UserId } from 'src/custom.decorator'
 import { LogoutDto } from './dto/logout.dto'
 import { AuthGuard } from '@nestjs/passport'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 
 @Controller('auth')
 export class AuthController {
@@ -28,13 +29,9 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() { email, code }: LoginDto) {
-    return await this.authService.login(email, code)
+  async emailLogin(@Body() { email, code }: LoginDto) {
+    return await this.authService.emailLogin(email, code)
   }
-
-  @Get('login/github')
-  @UseGuards(AuthGuard('github'))
-  async githubLogin() {}
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh/token')
@@ -42,10 +39,18 @@ export class AuthController {
     return this.authService.refreshToken(userId)
   }
 
+  @Get('login/github')
+  @UseGuards(AuthGuard('github'))
+  async githubLogin() {}
+
   @Get('callback/github')
   @UseGuards(AuthGuard('github'))
-  async githubCallback(@Req() req: Request) {
-    return req.user
+  async githubCallback(@Req() req: Request, @Res() res: Response) {
+    const email = req.user.email as string
+    const { accessToken, refreshToken } = await this.authService.login(email)
+    res.redirect(
+      `http://localhost:5173/login?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    )
   }
 
   @Get('login/google')
@@ -54,8 +59,12 @@ export class AuthController {
 
   @Get('callback/google')
   @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: Request) {
-    return req.user
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const email = req.user.email as string
+    const { accessToken, refreshToken } = await this.authService.login(email)
+    res.redirect(
+      `http://localhost:5173/login?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    )
   }
 
   @Post('logout')
