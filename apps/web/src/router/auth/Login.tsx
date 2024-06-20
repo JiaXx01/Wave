@@ -5,7 +5,6 @@ import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import googlePng from '@/assets/oauth_icon/google.png'
 import githubPng from '@/assets/oauth_icon/github.png'
-import wechatPng from '@/assets/oauth_icon/wechat.png'
 import { useSearch } from '@/hooks/url'
 import { setTokens } from '@/lib/token'
 
@@ -26,7 +25,7 @@ export default function Login() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const onOAuthLogin = (type: 'github' | 'google' | 'wechat') => {
+  const onOAuthLogin = (type: 'github' | 'google') => {
     window.location.href = `${BACKEND_URL}/auth/login/${type}`
   }
   return (
@@ -53,14 +52,6 @@ export default function Login() {
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onOAuthLogin('wechat')}
-          >
-            <img src={wechatPng} className="h-4 mr-2" />
-            <span className="w-[50px]">微信</span>
-          </Button>
           <Button
             size="sm"
             variant="outline"
