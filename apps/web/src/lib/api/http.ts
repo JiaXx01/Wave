@@ -7,10 +7,7 @@ const http = axios.create({
 })
 
 let refreshing = false
-const reqQueue: {
-  config: AxiosRequestConfig
-  resolve: (value: unknown) => void
-}[] = []
+const reqQueue: AxiosRequestConfig[] = []
 
 http.interceptors.request.use(config => {
   const { accessToken, refreshToken } = getTokens()
@@ -33,12 +30,7 @@ http.interceptors.response.use(
       })
     }
     if (refreshing) {
-      return new Promise(resolve => {
-        reqQueue.push({
-          config,
-          resolve
-        })
-      })
+      return reqQueue.push(config)
     }
     if (status === 401) {
       refreshing = true
@@ -46,9 +38,12 @@ http.interceptors.response.use(
         await refreshAuth()
         refreshing = false
 
-        reqQueue.forEach(({ config, resolve }) => {
-          resolve(http(config))
-        })
+        // reqQueue.forEach(({ config, resolve }) => {
+        //   resolve(http(config))
+        // })
+
+        await Promise.all(reqQueue.map(config => http(config)))
+        reqQueue.length = 0
 
         return http(config)
       } catch (error) {
