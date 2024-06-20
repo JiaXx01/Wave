@@ -38,20 +38,12 @@ http.interceptors.response.use(
         await refreshAuth()
         refreshing = false
 
-        // reqQueue.forEach(({ config, resolve }) => {
-        //   resolve(http(config))
-        // })
-
         await Promise.all(reqQueue.map(config => http(config)))
         reqQueue.length = 0
 
         return http(config)
       } catch (error) {
-        alert('token 失效了')
-        // removeTokens()
-        // setTimeout(() => {
-        //   window.location.href = '/login'
-        // })
+        return Promise.reject(error)
       }
     } else {
       return Promise.reject(error)
